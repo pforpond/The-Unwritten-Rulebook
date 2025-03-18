@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Unwritten Rule Book | Dead by Daylight</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        body {
+            background-color: #0a0a0a;
+            color: #d8d8d8;
+            line-height: 1.6;
+            background-image: url('/api/placeholder/1200/800');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-blend-mode: overlay;
+            background-color: rgba(0, 0, 0, 0.85);
+        }
+        
+        header {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 1.5rem 0;
+            border-bottom: 2px solid #700f0f;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .hero {
+            padding: 10rem 0;
+            text-align: center;
+            margin: 3rem 0;
+        }
+        
+        h1 {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            color: #fff;
+            text-shadow: 0 0 10px #700f0f;
+        }
+        
+        .tagline {
+            font-size: 1.8rem;
+            margin-bottom: 3rem;
+            font-weight: 300;
+            color: #a8a8a8;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background-color: #700f0f;
+            color: white;
+            padding: 1rem 2.5rem;
+            text-decoration: none;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 1.4rem;
+            transition: background-color 0.3s;
+            border: 2px solid #700f0f;
+        }
+        
+        .cta-button:hover {
+            background-color: transparent;
+            color: #700f0f;
+            box-shadow: 0 0 15px rgba(112, 15, 15, 0.5);
+        }
+        
+        .cta-secondary {
+            display: inline-block;
+            background-color: transparent;
+            color: #d8d8d8;
+            padding: 1rem 2.5rem;
+            text-decoration: none;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 1.4rem;
+            transition: all 0.3s;
+            border: 2px solid #d8d8d8;
+            margin-left: 1rem;
+        }
+        
+        .cta-secondary:hover {
+            background-color: #d8d8d8;
+            color: #0a0a0a;
+        }
+        
+        .coming-soon {
+            text-align: center;
+            padding: 6rem 0;
+            background-color: rgba(20, 20, 20, 0.7);
+            margin-bottom: 3rem;
+            border-top: 1px solid #333;
+            border-bottom: 1px solid #333;
+        }
+        
+        .description {
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            text-align: center;
+            font-size: 1.2rem;
+            color: #a8a8a8;
+        }
+        
+        .footer {
+            background-color: rgba(0, 0, 0, 0.9);
+            color: #888;
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 6rem;
+            border-top: 1px solid #333;
+        }
+        
+        .footer a {
+            color: #700f0f;
+            text-decoration: none;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .tagline {
+                font-size: 1.2rem;
+            }
+            
+            .cta-button, .cta-secondary {
+                display: block;
+                margin: 1rem auto;
+                max-width: 80%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="nav">
+                <a href="#" class="logo">The Unwritten Rule Book</a>
+            </nav>
+        </div>
+    </header>
+    
+    <section class="hero">
+        <div class="container">
+            <h1>The Dead by Daylight<br>Unwritten Rule Book</h1>
+            <p class="tagline">The unofficial community guidelines that every killer and survivor secretly knows...</p>
+            <div>
+                <a href="#" class="cta-button">Coming Soon</a>
+                <a href="#about" class="cta-secondary">Learn More</a>
+            </div>
+        </div>
+    </section>
+    
+    <section id="about" class="coming-soon">
+        <div class="container">
+            <h2 style="margin-bottom: 2rem; color: #fff; font-size: 2.5rem;">What is The Unwritten Rule Book?</h2>
+            <p class="description">
+                Every Dead by Daylight player knows there are unspoken rules in the fog. 
+                Don't camp, don't tunnel, give hatch to the last survivor... or do you?
+                This site will soon be the definitive collection of all those community-created
+                "rules" that have evolved over the years of gameplay.
+            </p>
+            <p class="description">
+                Stay tuned as we prepare to launch a platform where you can browse, 
+                submit, and vote on the unwritten rules of Dead by Daylight.
+            </p>
+        </div>
+    </section>
+    
+    <footer class="footer">
+        <div class="container">
+            <p>The Unwritten Rule Book is a fan-made project and is not affiliated with Behaviour Interactive or Dead by Daylight.</p>
+            <p style="margin-top: 1.5rem; font-size: 0.9rem;">
+                &copy; 2025 The Unwritten Rule Book. All rights reserved.
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
