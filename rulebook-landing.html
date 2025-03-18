@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Unwritten Rule Book | Dead by Daylight</title>
+    <title>The Unwritten Rulebook | Dead by Daylight</title>
     <style>
         * {
             margin: 0;
@@ -69,6 +69,12 @@
             text-decoration: none;
             display: flex;
             align-items: center;
+        }
+        
+        .logo img {
+            height: 2.5rem;
+            margin-left: 0.75rem;
+            width: auto;
         }
         
         .nav {
@@ -160,6 +166,24 @@
                 margin: 1rem auto;
                 max-width: 80%;
             }
+            
+            .logo {
+                font-size: 1.4rem;
+            }
+            
+            .logo img {
+                height: 2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 1.2rem;
+            }
+            
+            .logo img {
+                height: 1.8rem;
+            }
         }
     </style>
 </head>
@@ -167,14 +191,14 @@
     <header>
         <div class="container">
             <nav class="nav">
-                <a href="#" class="logo">The Unwritten Rule Book</a>
+                <a href="#" class="logo"><img src="logo.png" alt="The Unwritten Rulebook"></a>
+                
             </nav>
         </div>
     </header>
-    
     <section class="hero">
         <div class="container">
-            <h1>The Dead by Daylight<br>Unwritten Rule Book</h1>
+            <h1>The Dead by Daylight<br>Unwritten Rulebook</h1>
             <p class="tagline">The unofficial community guidelines that every killer and survivor secretly knows...</p>
             <div>
                 <a href="#" class="cta-button">Coming Soon</a>
