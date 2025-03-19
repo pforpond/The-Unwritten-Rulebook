@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codes | The Unwritten Rulebook</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        body {
+            background-color: #0a0a0a;
+            color: #d8d8d8;
+            line-height: 1.6;
+            background-image: url('/api/placeholder/1200/800');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-blend-mode: overlay;
+            background-color: rgba(0, 0, 0, 0.85);
+        }
+        
+        header {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 1.5rem 0;
+            border-bottom: 2px solid #700f0f;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .page-title {
+            padding: 5rem 0 3rem;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            color: #fff;
+            text-shadow: 0 0 10px #700f0f;
+        }
+        
+        .subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            font-weight: 300;
+            color: #a8a8a8;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo img {
+            height: 2.5rem;
+            margin-left: 0.75rem;
+            width: auto;
+        }
+        
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            align-items: center;
+        }
+        
+        .nav-button {
+            margin-left: 1.5rem;
+            transition: transform 0.3s;
+            position: relative;
+        }
+        
+        .nav-button:hover {
+            transform: scale(1.1);
+        }
+        
+        .nav-button:hover::after {
+            content: attr(data-title);
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            border: 1px solid #700f0f;
+        }
+        
+        .nav-button img {
+            height: 3rem;
+            width: auto;
+            border-radius: 5px;
+            border: 2px solid #700f0f;
+        }
+        
+        .codes-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: rgba(15, 15, 15, 0.85);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            border: 1px solid #333;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .code-section {
+            margin-bottom: 2.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #333;
+        }
+        
+        .code-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .code-section h3 {
+            color: #fff;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 5px #700f0f;
+        }
+        
+        .code-list {
+            list-style-type: none;
+        }
+        
+        .code-item {
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background-color: rgba(35, 35, 35, 0.6);
+            border-radius: 5px;
+            border-left: 3px solid #700f0f;
+            transition: transform 0.2s;
+        }
+        
+        .code-item:hover {
+            transform: translateX(5px);
+            background-color: rgba(50, 50, 50, 0.6);
+        }
+        
+        .code {
+            font-family: monospace;
+            font-size: 1.1rem;
+            color: #fff;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+        
+        .code-description {
+            color: #b8b8b8;
+            font-size: 1rem;
+        }
+        
+        .copy-button {
+            float: right;
+            background-color: #700f0f;
+            color: #fff;
+            border: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .copy-button:hover {
+            background-color: #8f1616;
+        }
+        
+        .footer {
+            background-color: rgba(0, 0, 0, 0.9);
+            color: #888;
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 6rem;
+            border-top: 1px solid #333;
+        }
+        
+        .footer a {
+            color: #700f0f;
+            text-decoration: none;
+        }
+        
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: rgba(112, 15, 15, 0.8);
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 1.2rem;
+            transition: background-color 0.3s;
+            display: none;
+        }
+        
+        .back-to-top:hover {
+            background-color: #700f0f;
+        }
+        
+        .disclaimer {
+            text-align: center;
+            font-style: italic;
+            color: #888;
+            margin: 2rem 0;
+            font-size: 0.9rem;
+        }
+        
+        .copied-message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: 1px solid #700f0f;
+            display: none;
+            z-index: 1000;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .logo {
+                font-size: 1.4rem;
+            }
+            
+            .logo img {
+                height: 2rem;
+            }
+            
+            .nav-button img {
+                height: 2.5rem;
+            }
+            
+            .code-section h3 {
+                font-size: 1.5rem;
+            }
+            
+            .code {
+                font-size: 1rem;
+            }
+            
+            .code-description {
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 1.2rem;
+            }
+            
+            .logo img {
+                height: 1.8rem;
+            }
+            
+            .nav-button img {
+                height: 2rem;
+            }
+            
+            .nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .codes-container {
+                padding: 1.5rem;
+            }
+            
+            .code-section h3 {
+                font-size: 1.3rem;
+            }
+            
+            .code-item {
+                padding: 0.6rem;
+            }
+            
+            .code {
+                display: block;
+                margin-bottom: 0.5rem;
+            }
+            
+            .copy-button {
+                float: none;
+                display: block;
+                margin-top: 0.5rem;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="nav">
+                <a href="rulebook-landing.html" class="logo"><img src="logo.png" alt="The Unwritten Rulebook"></a>
+                <div class="nav-buttons">
+                    <a href="killer.html" class="nav-button" data-title="Killer Rulebook">
+                        <img src="killer.png" alt="Killers">
+                    </a>
+                    <a href="survivor.html" class="nav-button" data-title="Survivor Rulebook">
+                        <img src="survivor.png" alt="Survivors">
+                    </a>
+                    <a href="codes.html" class="nav-button" data-title="Codes">
+                        <img src="codes.png" alt="Codes">
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+    
+    <section class="page-title">
+        <div class="container">
+            <h1>Dead by Daylight Codes</h1>
+            <p class="subtitle">Active codes for in-game rewards, cosmetics, and exclusive items</p>
+        </div>
+    </section>
+    
+    <div class="container">
+        <p class="disclaimer">
+            Codes are provided for informational purposes only. Some codes may expire without notice.
+        </p>
+        
+        <div class="codes-container">
+            <div class="code-section" id="current-codes">
+                <h3>Current Codes</h3>
+                <ul class="code-list">
+                    <li class="code-item">
+                        <span class="code">CARNANEVOA25</span>
+                        <button class="copy-button" onclick="copyToClipboard('CARNANEVOA25')">Copy</button>
+                        <span class="code-description">300K Bloodpoints, 30x Rift Fragments, Confetti Mask Badge, Hanging Umbrellas Banner</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">IFLOOKSCOULDCHILL</span>
+                        <button class="copy-button" onclick="copyToClipboard('IFLOOKSCOULDCHILL')">Copy</button>
+                        <span class="code-description">Frosty Eyes Killer cosmetics</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">REDDIT1MIL</span>
+                        <button class="copy-button" onclick="copyToClipboard('REDDIT1MIL')">Copy</button>
+                        <span class="code-description">8-bit Crow badge</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="code-section" id="badge-charm-codes">
+                <h3>Badge and Charm Codes</h3>
+                <ul class="code-list">
+                    <li class="code-item">
+                        <span class="code">BDGPRIDE</span>
+                        <button class="copy-button" onclick="copyToClipboard('BDGPRIDE')">Copy</button>
+                        <span class="code-description">Pride player badge</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">BDGPRG</span>
+                        <button class="copy-button" onclick="copyToClipboard('BDGPRG')">Copy</button>
+                        <span class="code-description">Progress Pride player badge</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">BDGL</span>
+                        <button class="copy-button" onclick="copyToClipboard('BDGL')">Copy</button>
+                        <span class="code-description">WLW player badge</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">BDGM</span>
+                        <button class="copy-button" onclick="copyToClipboard('BDGM')">Copy</button>
+                        <span class="code-description">MLM player badge</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">BDGB</span>
+                        <button class="copy-button" onclick="copyToClipboard('BDGB')">Copy</button>
+                        <span class="code-description">Bisexual player badge</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">BDGP</span>
+                        <button class="copy-button" onclick="copyToClipboard('BDGP')">Copy</button>
+                        <span class="code-description">Pansexual player badge</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">BDGT</span>
+                        <button class="copy-button" onclick="copyToClipboard('BDGT')">Copy</button>
+                        <span class="code-description">Trans player badge</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">BDGGQ</span>
+                        <button class="copy-button" onclick="copyToClipboard('BDGGQ')">Copy</button>
+                        <span class="code-description">Genderqueer player badge</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">BDGGF</span>
+                        <button class="copy-button" onclick="copyToClipboard('BDGGF')">Copy</button>
+                        <span class="code-description">Genderfluid player badge</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">BDGNB</span>
+                        <button class="copy-button" onclick="copyToClipboard('BDGNB')">Copy</button>
+                        <span class="code-description">Non-binary player badge</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">BDGIS</span>
+                        <button class="copy-button" onclick="copyToClipboard('BDGIS')">Copy</button>
+                        <span class="code-description">Intersex player badge</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">BDGAG</span>
+                        <button class="copy-button" onclick="copyToClipboard('BDGAG')">Copy</button>
+                        <span class="code-description">Agender player badge</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">BDG2S</span>
+                        <button class="copy-button" onclick="copyToClipboard('BDG2S')">Copy</button>
+                        <span class="code-description">Two-spirit player badge</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">BDGPA</span>
+                        <button class="copy-button" onclick="copyToClipboard('BDGPA')">Copy</button>
+                        <span class="code-description">Polyamory player badge</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">BDGAS</span>
+                        <button class="copy-button" onclick="copyToClipboard('BDGAS')">Copy</button>
+                        <span class="code-description">Asexual player badge</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">BDGAR</span>
+                        <button class="copy-button" onclick="copyToClipboard('BDGAR')">Copy</button>
+                        <span class="code-description">Aromantic player badge</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">BDGDM</span>
+                        <button class="copy-button" onclick="copyToClipboard('BDGDM')">Copy</button>
+                        <span class="code-description">Demisexual player badge</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">POLYFLAG</span>
+                        <button class="copy-button" onclick="copyToClipboard('POLYFLAG')">Copy</button>
+                        <span class="code-description">Polyamory flag charm</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">DEMISFLAG</span>
+                        <button class="copy-button" onclick="copyToClipboard('DEMISFLAG')">Copy</button>
+                        <span class="code-description">Demisexual flag charm</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">AROMFLAG</span>
+                        <button class="copy-button" onclick="copyToClipboard('AROMFLAG')">Copy</button>
+                        <span class="code-description">Aromantic flag charm</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">TWOSFLAG</span>
+                        <button class="copy-button" onclick="copyToClipboard('TWOSFLAG')">Copy</button>
+                        <span class="code-description">Two-spirit flag charm</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">FLAGL</span>
+                        <button class="copy-button" onclick="copyToClipboard('FLAGL')">Copy</button>
+                        <span class="code-description">WLW flag charm</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">MFLAG</span>
+                        <button class="copy-button" onclick="copyToClipboard('MFLAG')">Copy</button>
+                        <span class="code-description">MLM flag charm</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">FLAGB</span>
+                        <button class="copy-button" onclick="copyToClipboard('FLAGB')">Copy</button>
+                        <span class="code-description">Bisexual flag charm</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">FLAGP</span>
+                        <button class="copy-button" onclick="copyToClipboard('FLAGP')">Copy</button>
+                        <span class="code-description">Pansexual flag charm</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">FLAGT</span>
+                        <button class="copy-button" onclick="copyToClipboard('FLAGT')">Copy</button>
+                        <span class="code-description">Transgender flag charm</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">ISFLAG</span>
+                        <button class="copy-button" onclick="copyToClipboard('ISFLAG')">Copy</button>
+                        <span class="code-description">Intersex flag charm</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">AFLAGG</span>
+                        <button class="copy-button" onclick="copyToClipboard('AFLAGG')">Copy</button>
+                        <span class="code-description">Agender flag charm</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">GFLAGF</span>
+                        <button class="copy-button" onclick="copyToClipboard('GFLAGF')">Copy</button>
+                        <span class="code-description">Genderfluid flag charm</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">NBFLAG</span>
+                        <button class="copy-button" onclick="copyToClipboard('NBFLAG')">Copy</button>
+                        <span class="code-description">Non-binary flag charm</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">GFLAGQ</span>
+                        <button class="copy-button" onclick="copyToClipboard('GFLAGQ')">Copy</button>
+                        <span class="code-description">Genderqueer flag charm</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">AFLAGS</span>
+                        <button class="copy-button" onclick="copyToClipboard('AFLAGS')">Copy</button>
+                        <span class="code-description">Asexual flag charm</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">KINDRD</span>
+                        <button class="copy-button" onclick="copyToClipboard('KINDRD')">Copy</button>
+                        <span class="code-description">Glance of Pride charm</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">CAWCAW</span>
+                        <button class="copy-button" onclick="copyToClipboard('CAWCAW')">Copy</button>
+                        <span class="code-description">Feathers of Pride charm</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">PRIDE</span>
+                        <button class="copy-button" onclick="copyToClipboard('PRIDE')">Copy</button>
+                        <span class="code-description">Rainbow Flag charm</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">PRIDE2022</span>
+                        <button class="copy-button" onclick="copyToClipboard('PRIDE2022')">Copy</button>
+                        <span class="code-description">Progress Pride Flag charm</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">WARRIORPUPPERS</span>
+                        <button class="copy-button" onclick="copyToClipboard('WARRIORPUPPERS')">Copy</button>
+                        <span class="code-description">Warrior Puppers charm</span>
+                    </li>
+                    <li class="code-item">
+                        <span class="code">LETSROLL</span>
+                        <button class="copy-button" onclick="copyToClipboard('LETSROLL')">Copy</button>
+                        <span class="code-description">Dwight Miniature charm</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <p class="disclaimer">
+            Remember to enter these codes in the in-game store to claim your rewards!
+        </p>
+    </div>
+    
+    <div class="copied-message" id="copied-message">Code copied to clipboard!</div>
+    
+    <a href="#" class="back-to-top">↑</a>
+    
+    <footer class="footer">
+        <div class="container">
+            <p>The Unwritten Rulebook is a fan-made project and is not affiliated with Behaviour Interactive or Dead by Daylight.</p>
+        </div>
+    </footer>
+    
+    <script>
+        // Show/hide back to top button
+        window.addEventListener('scroll', function() {
+            var backToTop = document.querySelector('.back-to-top');
+            if (window.pageYOffset > 300) {
+                backToTop.style.display = 'block';
+            } else {
+                backToTop.style.display = 'none';
+            }
+        });
+        
+        // Smooth scroll to top
+        document.querySelector('.back-to-top').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // Copy code to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                var message = document.getElementById('copied-message');
+                message.style.display = 'block';
+                setTimeout(function() {
+                    message.style.display = 'none';
+                }, 2000);
+            }, function(err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+    </script>
+</body>
+</html>
