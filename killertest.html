@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Killer Rulebook | The Unwritten Rulebook</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <style>
         * {
             margin: 0;
@@ -215,19 +216,19 @@
         
         .loading {
             text-align: center;
-            padding: 2rem;
             font-size: 1.2rem;
+            padding: 2rem;
             color: #a8a8a8;
         }
         
         .error-message {
-            text-align: center;
-            padding: 2rem;
-            font-size: 1.2rem;
-            color: #f44336;
-            background-color: rgba(244, 67, 54, 0.1);
+            background-color: rgba(112, 15, 15, 0.3);
+            color: #ff9999;
+            padding: 1rem;
             border-radius: 5px;
-            margin: 1rem 0;
+            margin-bottom: 2rem;
+            text-align: center;
+            display: none;
         }
         
         @media (max-width: 768px) {
@@ -305,6 +306,9 @@
                     <a href="survivor.html" class="nav-button" data-title="Survivor Rulebook">
                         <img src="survivor.png" alt="Survivors">
                     </a>
+                    <a href="codes.html" class="nav-button" data-title="Codes">
+                        <img src="codes.png" alt="Codes">
+                    </a>
                 </div>
             </nav>
         </div>
@@ -321,11 +325,15 @@
         <p class="disclaimer">
             The Unwritten Rules are more like guidelines than actual rules!
         </p>
-        
-        <div class="rules-container" id="rules-container">
-            <div class="loading">Loading rules...</div>
+        <div class="error-message" id="error-message">
+            Failed to load rules. Please try again later.
         </div>
-        
+        <div class="rules-container" id="rules-container">
+            <div class="loading" id="loading">
+                Loading rules...
+            </div>
+            <!-- Rules will be populated here dynamically -->
+        </div>
         <p class="disclaimer">
             The Unwritten Rules are more like guidelines than actual rules!
         </p>
@@ -336,17 +344,14 @@
     <footer class="footer">
         <div class="container">
             <p>The Unwritten Rulebook is a fan-made project and is not affiliated with Behaviour Interactive or Dead by Daylight.</p>
-            <p style="margin-top: 1.5rem; font-size: 0.9rem;">
-                &copy; 2025 The Unwritten Rulebook. All rights reserved.
-            </p>
         </div>
     </footer>
     
     <script>
-        // API endpoint for your Lambda function through API Gateway
-        const API_ENDPOINT = 'https://your-api-gateway-url.execute-api.region.amazonaws.com/prod/killer-rules';
+        // API endpoint for the Lambda function
+        const API_ENDPOINT = 'https://qhhorvpbc1.execute-api.eu-west-2.amazonaws.com/prod/';
         
-        // Function to fetch rules from DynamoDB via Lambda
+        // Function to fetch rules from API
         async function fetchRules() {
             try {
                 const response = await fetch(API_ENDPOINT);
@@ -356,52 +361,51 @@
                 }
                 
                 const rules = await response.json();
-                displayRules(rules);
+                return rules;
             } catch (error) {
-                console.error("Error fetching rules:", error);
-                document.getElementById('rules-container').innerHTML = `
-                    <div class="error-message">
-                        <p>Sorry, we couldn't load the rules at this time. Please try again later.</p>
-                        <p>Error: ${error.message}</p>
-                    </div>
-                `;
+                console.error('Error fetching rules:', error);
+                document.getElementById('error-message').style.display = 'block';
+                document.getElementById('loading').style.display = 'none';
+                return [];
             }
         }
         
-        // Function to display rules on the page
-        function displayRules(rules) {
-            const container = document.getElementById('rules-container');
+        // Function to render rules
+        function renderRules(rules) {
+            const rulesContainer = document.getElementById('rules-container');
             
-            if (rules.length === 0) {
-                container.innerHTML = `
-                    <div class="error-message">
-                        <p>No rules found in the database. Please check back later.</p>
-                    </div>
-                `;
+            // Clear loading message
+            document.getElementById('loading').style.display = 'none';
+            
+            // If no rules, show error
+            if (!rules || rules.length === 0) {
+                document.getElementById('error-message').style.display = 'block';
                 return;
             }
             
-            let rulesHTML = '';
+            // Sort rules by RuleId if needed
+            rules.sort((a, b) => a.RuleId.localeCompare(b.RuleId));
             
+            // Create HTML for each rule
             rules.forEach(rule => {
-                rulesHTML += `
-                    <div class="rule" id="${rule.anchor || 'rule-' + rule.ruleId}">
-                        <h3>Rule #${rule.ruleId}: ${rule.title}</h3>
-                        <p>${rule.description}</p>
-                        ${rule.additionalInfo ? `<p>${rule.additionalInfo}</p>` : ''}
-                        <div class="community-opinion">
-                            <h4>Community Opinion:</h4>
-                            <p>${rule.communityOpinion}</p>
-                        </div>
-                    </div>
+                const ruleElement = document.createElement('div');
+                ruleElement.className = 'rule';
+                ruleElement.id = rule.RuleId;
+                
+                ruleElement.innerHTML = `
+                    <h3>${rule.Title}</h3>
+                    <p>${rule.Description}</p>
                 `;
+                
+                rulesContainer.appendChild(ruleElement);
             });
-            
-            container.innerHTML = rulesHTML;
         }
         
         // Load rules when page loads
-        document.addEventListener('DOMContentLoaded', fetchRules);
+        window.addEventListener('DOMContentLoaded', async () => {
+            const rules = await fetchRules();
+            renderRules(rules);
+        });
         
         // Show/hide back to top button
         window.addEventListener('scroll', function() {
