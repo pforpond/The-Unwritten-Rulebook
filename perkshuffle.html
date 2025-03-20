@@ -353,8 +353,15 @@
     </footer>
 
     <script>
-    async function loadPerksFromCSV() {
-        const response = await fetch('./perkinfo.csv');
+    const csvURL = "https://unwrittenrulebucket.s3.eu-west-2.amazonaws.com/perkinfo.csv"; 
+
+async function loadPerksFromCSV() {
+    const response = await fetch(csvURL);
+    const data = await response.text();
+    console.log("CSV Loaded:", data); // Debugging log
+    return parseCSV(data);
+}
+
         const data = await response.text();
         const rows = data.split('\n').map(row => row.split(','));
         
