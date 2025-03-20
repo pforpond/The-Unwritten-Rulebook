@@ -313,7 +313,7 @@
     
     <section class="main-content">
         <div class="container">
-            <h1>Perk Shuffle</h1>
+            <h1>Perk Shuffle (Beta)</h1>
             <p class="tagline">Randomly select 4 perks and challenge yourself with a new build!</p>
             
             <div class="perk-shuffle-container">
@@ -353,77 +353,73 @@
     </footer>
 
     <script>
-    const csvURL = "https://unwrittenrulebucket.s3.eu-west-2.amazonaws.com/perkinfo.csv?nocache=" + new Date().getTime();
-const perksContainer = document.getElementById("perks-container");
-
-async function loadPerksFromCSV() {
-    const response = await fetch(csvURL);
-    const data = await response.text();
-    console.log("CSV Loaded:", data); // Debugging log
-
-    const rows = data.trim().split("\n").map(row => row.split(","));
+    // Embedded Perk Data
+    const survivorPerks = [
+        { name: "Adrenaline", file: "adrenaline.png" },
+        { name: "Balanced Landing", file: "balancedLanding.png" },
+        { name: "Borrowed Time", file: "borrowedTime.png" },
+        { name: "Decisive Strike", file: "decisiveStrike.png" }
+        // Add more survivor perks here
+    ];
     
-    let survivorPerks = [];
-    let killerPerks = [];
+    const killerPerks = [
+        { name: "Hex: Ruin", file: "hexRuin.png" },
+        { name: "Barbecue & Chili", file: "barbecueAndChilli.png" },
+        { name: "Pop Goes the Weasel", file: "popGoesTheWeasel.png" },
+        { name: "Tinkerer", file: "tinkerer.png" }
+        // Add more killer perks here
+    ];
+    
+    const perksContainer = document.getElementById("perks-container");
+    const roleButtons = document.querySelectorAll(".role-button");
+    const shuffleButton = document.getElementById("shuffle-button");
+    let currentRole = "survivor";
 
-    rows.forEach(row => {
-        if (row.length >= 3) {
-            const role = row[0].trim().toLowerCase();
-            const perkName = row[1].trim();
-            const fileName = row[2].trim();
+    roleButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            roleButtons.forEach(btn => btn.classList.remove("active"));
+            button.classList.add("active");
+            currentRole = button.dataset.role;
+        });
+    });
 
-            if (role === "survivor") {
-                survivorPerks.push({ name: perkName, file: fileName });
-            } else if (role === "killer") {
-                killerPerks.push({ name: perkName, file: fileName });
-            }
+    function shuffleArray(array) {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
         }
-    });
+        return shuffled;
+    }
 
-    return { survivorPerks, killerPerks };
-}
+    function shufflePerks() {
+        const perks = currentRole === "survivor" ? survivorPerks : killerPerks;
+        const shuffledPerks = shuffleArray(perks).slice(0, 4);
 
-async function shufflePerks() {
-    const { survivorPerks, killerPerks } = await loadPerksFromCSV();
-    const perks = currentRole === "survivor" ? survivorPerks : killerPerks;
-    const shuffledPerks = perks.sort(() => 0.5 - Math.random()).slice(0, 4);
+        perksContainer.innerHTML = "";
 
-    perksContainer.innerHTML = "";
+        shuffledPerks.forEach(perk => {
+            const perkCard = document.createElement("div");
+            perkCard.className = "perk-card";
 
-    shuffledPerks.forEach(perk => {
-        const perkCard = document.createElement("div");
-        perkCard.className = "perk-card";
+            const perkImage = document.createElement("img");
+            perkImage.className = "perk-image";
+            perkImage.src = `${currentRole === 'survivor' ? 'survivorperks' : 'killerperks'}/${perk.file}`;
+            perkImage.alt = perk.name;
 
-        const perkImage = document.createElement("img");
-        perkImage.className = "perk-image";
-        perkImage.src = `${currentRole}perks/${perk.file}`;
-        perkImage.alt = perk.name;
+            const perkName = document.createElement("div");
+            perkName.className = "perk-name";
+            perkName.textContent = perk.name;
 
-        const perkName = document.createElement("div");
-        perkName.className = "perk-name";
-        perkName.textContent = perk.name;
+            perkCard.appendChild(perkImage);
+            perkCard.appendChild(perkName);
+            perksContainer.appendChild(perkCard);
+        });
+    }
 
-        perkCard.appendChild(perkImage);
-        perkCard.appendChild(perkName);
-        perksContainer.appendChild(perkCard);
-    });
-}
-
-const roleButtons = document.querySelectorAll(".role-button");
-const shuffleButton = document.getElementById("shuffle-button");
-let currentRole = "survivor";
-
-roleButtons.forEach(button => {
-    button.addEventListener("click", () => {
-        roleButtons.forEach(btn => btn.classList.remove("active"));
-        button.classList.add("active");
-        currentRole = button.dataset.role;
-    });
-});
-
-shuffleButton.addEventListener("click", shufflePerks);
-
+    shuffleButton.addEventListener("click", shufflePerks);
 </script>
+
 
 </body>
 </html>
