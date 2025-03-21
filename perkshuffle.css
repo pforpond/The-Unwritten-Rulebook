@@ -278,3 +278,75 @@
                 height: 130px;
             }
         }
+.perk-card {
+    position: relative;
+    width: 180px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid #700f0f;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.perk-card.held {
+    border: 2px solid #ffcc00;
+    box-shadow: 0 0 15px rgba(255, 204, 0, 0.7);
+}
+
+.hold-button {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #700f0f;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    opacity: 0;
+}
+
+.perk-card:hover .hold-button {
+    opacity: 1;
+}
+
+.hold-button:hover {
+    background-color: #900f0f;
+}
+
+.perk-card.held .hold-button {
+    background-color: #ffcc00;
+    color: #000;
+    opacity: 1;
+}
+
+.perk-card.held .hold-button:hover {
+    background-color: #ffaa00;
+}
+
+.perk-name {
+    padding: 1rem 1rem 2.5rem 1rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #fff;
+    text-align: center;
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    .perk-card.held {
+        box-shadow: 0 0 10px rgba(255, 204, 0, 0.6);
+    }
+    
+    .hold-button {
+        opacity: 1;
+        font-size: 0.8rem;
+        padding: 4px 8px;
+    }
+}

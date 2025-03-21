@@ -283,50 +283,147 @@ const killerPerks = [
 ];
     
     const perksContainer = document.getElementById("perks-container");
-    const roleButtons = document.querySelectorAll(".role-button");
-    const shuffleButton = document.getElementById("shuffle-button");
-    let currentRole = "survivor";
+const roleButtons = document.querySelectorAll(".role-button");
+const shuffleButton = document.getElementById("shuffle-button");
+let currentRole = "survivor";
+let currentPerks = [];
+let heldPerks = [false, false, false, false];
 
-    roleButtons.forEach(button => {
-        button.addEventListener("click", () => {
-            roleButtons.forEach(btn => btn.classList.remove("active"));
-            button.classList.add("active");
-            currentRole = button.dataset.role;
-        });
+// Set up role buttons
+roleButtons.forEach(button => {
+    button.addEventListener("click", () => {
+        roleButtons.forEach(btn => btn.classList.remove("active"));
+        button.classList.add("active");
+        currentRole = button.dataset.role;
+        // Reset held perks when changing roles
+        heldPerks = [false, false, false, false];
+        currentPerks = [];
+        // Reset the display
+        initializeEmptyPerkCards();
     });
+});
 
-    function shuffleArray(array) {
-        const shuffled = [...array];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+function shuffleArray(array) {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+}
+
+// Modify the initializeEmptyPerkCards function to use noperk.png
+function initializeEmptyPerkCards() {
+    perksContainer.innerHTML = "";
+    
+    for (let i = 0; i < 4; i++) {
+        const perkCard = document.createElement("div");
+        perkCard.className = "perk-card";
+        perkCard.dataset.index = i;
+        
+        const perkImage = document.createElement("img");
+        perkImage.className = "perk-image";
+        perkImage.src = "noperk.png"; // Changed from placeholder to noperk.png
+        perkImage.alt = "No Perk";
+        
+        const perkName = document.createElement("div");
+        perkName.className = "perk-name";
+        perkName.textContent = "Select a role and shuffle";
+        
+        const holdButton = document.createElement("button");
+        holdButton.className = "hold-button";
+        holdButton.textContent = "Hold";
+        holdButton.style.display = "none";
+        
+        perkCard.appendChild(perkImage);
+        perkCard.appendChild(perkName);
+        perkCard.appendChild(holdButton);
+        perksContainer.appendChild(perkCard);
+    }
+}
+
+function shufflePerks() {
+    const perks = currentRole === "survivor" ? survivorPerks : killerPerks;
+    let availablePerks = [...perks];
+    
+    // If first shuffle, initialize current perks
+    if (currentPerks.length === 0) {
+        currentPerks = shuffleArray(perks).slice(0, 4);
+        heldPerks = [false, false, false, false];
+    } else {
+        // Remove held perks from available perks to avoid duplicates
+        for (let i = 0; i < 4; i++) {
+            if (heldPerks[i]) {
+                const perkName = currentPerks[i].name;
+                availablePerks = availablePerks.filter(p => p.name !== perkName);
+            }
         }
-        return shuffled;
+        
+        // Shuffle remaining perks
+        const shuffledPerks = shuffleArray(availablePerks);
+        
+        // Replace non-held perks
+        let shuffledIndex = 0;
+        for (let i = 0; i < 4; i++) {
+            if (!heldPerks[i]) {
+                currentPerks[i] = shuffledPerks[shuffledIndex];
+                shuffledIndex++;
+            }
+        }
     }
+    
+    updatePerkDisplay();
+}
 
-    function shufflePerks() {
-        const perks = currentRole === "survivor" ? survivorPerks : killerPerks;
-        const shuffledPerks = shuffleArray(perks).slice(0, 4);
-
-        perksContainer.innerHTML = "";
-
-        shuffledPerks.forEach(perk => {
-            const perkCard = document.createElement("div");
-            perkCard.className = "perk-card";
-
-            const perkImage = document.createElement("img");
-            perkImage.className = "perk-image";
-            perkImage.src = `${currentRole === 'survivor' ? 'survivorperks' : 'killerperks'}/${perk.file}`;
-            perkImage.alt = perk.name;
-
-            const perkName = document.createElement("div");
-            perkName.className = "perk-name";
-            perkName.textContent = perk.name;
-
-            perkCard.appendChild(perkImage);
-            perkCard.appendChild(perkName);
-            perksContainer.appendChild(perkCard);
+function updatePerkDisplay() {
+    // Clear the container
+    perksContainer.innerHTML = "";
+    
+    currentPerks.forEach((perk, index) => {
+        const perkCard = document.createElement("div");
+        perkCard.className = "perk-card";
+        perkCard.dataset.index = index;
+        
+        if (heldPerks[index]) {
+            perkCard.classList.add("held");
+        }
+        
+        const perkImage = document.createElement("img");
+        perkImage.className = "perk-image";
+        perkImage.src = `${currentRole === 'survivor' ? 'survivorperks' : 'killerperks'}/${perk.file}`;
+        perkImage.alt = perk.name;
+        
+        const perkName = document.createElement("div");
+        perkName.className = "perk-name";
+        perkName.textContent = perk.name;
+        
+        const holdButton = document.createElement("button");
+        holdButton.className = "hold-button";
+        holdButton.textContent = heldPerks[index] ? "Release" : "Hold";
+        holdButton.setAttribute("data-index", index);
+        
+        holdButton.addEventListener("click", (e) => {
+            const idx = parseInt(e.target.getAttribute("data-index"));
+            heldPerks[idx] = !heldPerks[idx];
+            
+            // Update the button text and card styling
+            e.target.textContent = heldPerks[idx] ? "Release" : "Hold";
+            if (heldPerks[idx]) {
+                perkCard.classList.add("held");
+            } else {
+                perkCard.classList.remove("held");
+            }
         });
-    }
+        
+        perkCard.appendChild(perkImage);
+        perkCard.appendChild(perkName);
+        perkCard.appendChild(holdButton);
+        perksContainer.appendChild(perkCard);
+    });
+}
 
-    shuffleButton.addEventListener("click", shufflePerks);
+// Initial setup
+initializeEmptyPerkCards();
+
+// Add event listener for shuffle button
+shuffleButton.addEventListener("click", shufflePerks);
