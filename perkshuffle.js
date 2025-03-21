@@ -141,7 +141,7 @@ const survivorPerks = [
     { name: "Troubleshooter", file: "troubleshooter.png" },
     { name: "Unbreakable", file: "unbreakable.png" },
     { name: "Up The Ante", file: "upTheAnte.png" },
-    { name: "Urban Evenation", file: "urbanEvasion.png" },
+    { name: "Urban Evasion", file: "urbanEvasion.png" },
     { name: "Vigil", file: "vigil.png" },
     { name: "Visionary", file: "visionary.png" },
     { name: "Wake Up", file: "wakeUp.png" },
