@@ -1,0 +1,269 @@
+ // Embedded Perk Data
+const survivorPerks = [
+    { name: "Ace in The Hole", file: "aceInTheHole.png" },
+    { name: "Adrenaline", file: "adrenaline.png" },
+    { name: "Aftercare", file: "aftercare.png" },
+    { name: "Alert", file: "alert.png" },
+    { name: "Any Means Necessary", file: "anyMeansNecessary.png" },
+    { name: "Appraisal", file: "appraisal.png" },
+    { name: "Autodidact", file: "autodidact.png" },
+    { name: "Background Player", file: "backgroundPlayer.png" },
+    { name: "Balanced Landing", file: "balancedLanding.png" },
+    { name: "Bardic Inspiration", file: "bardicInspiration.png" },
+    { name: "Blood Rush", file: "bloodRush.png" },
+    { name: "Boil Over", file: "boilOver.png" },
+    { name: "Bond", file: "bond.png" },
+    { name: "Dark Theory", file: "boonDarkTheory.png" },
+    { name: "Borrowed Time", file: "borrowedTime.png" },
+    { name: "Botany Knowlege", file: "botanyKnowledge.png" },
+    { name: "Breakout", file: "breakout.png" },
+    { name: "Buckle Up", file: "buckleUp.png" },
+    { name: "Calm Spirit", file: "calmSpirit.png" },
+    { name: "Camaraderie", file: "camaraderie.png" },
+    { name: "Corrective Action", file: "correctiveAction.png" },
+    { name: "Cut Loose", file: "cutLoose.png" },
+    { name: "Dance With Me", file: "danceWithMe.png" },
+    { name: "Dark Sense", file: "darkSense.png" },
+    { name: "Dead Hard", file: "deadHard.png" },
+    { name: "Deception", file: "deception.png" },
+    { name: "Decisive Strike", file: "decisiveStrike.png" },
+    { name: "Deja Vu", file: "dejaVu.png" },
+    { name: "Deliverance", file: "deliverance.png" },
+    { name: "Detective's Hunch", file: "detectivesHunch.png" },
+    { name: "Distortion", file: "distortion.png" },
+    { name: "Diversion", file: "diversion.png" },
+    { name: "Empathetic Connection", file: "empathicConnection.png" },
+    { name: "Empathy", file: "empathy.png" },
+    { name: "Finesse", file: "finesse.png" },
+    { name: "Flip-Flop", file: "flip-Flop.png" },
+    { name: "Fogwise", file: "fogwise.png" },
+    { name: "Friendly Competition", file: "friendlyCompetition.png" },
+    { name: "Guardian", file: "guardian.png" },
+    { name: "Hardened", file: "hardened.png" },
+    { name: "Head On", file: "headOn.png" },
+    { name: "Hoarder", file: "hoarder.png" },
+    { name: "Hope", file: "hope.png" },
+    { name: "Inner Focus", file: "innerFocus.png" },
+    { name: "Inner Healing", file: "innerHealing.png" },
+    { name: "Iron Will", file: "ironWill.png" },
+    { name: "Kindred", file: "kindred.png" },
+    { name: "Knock Out", file: "knockOut.png" },
+    { name: "Leader", file: "leader.png" },
+    { name: "Left Behind", file: "leftBehind.png" },
+    { name: "Lightweight", file: "lightweight.png" },
+    { name: "Lithe", file: "lithe.png" },
+    { name: "Lucky Break", file: "luckyBreak.png" },
+    { name: "Made For This", file: "madeForThis.png" },
+    { name: "Mettle of Man", file: "mettleOfMan.png" },
+    { name: "Mirrored Illusion", file: "mirroredIllusion.png" },
+    { name: "No Mither", file: "noMither.png" },
+    { name: "No One Left Behind", file: "noOneLeftBehind.png" },
+    { name: "Object of Obsession", file: "objectOfObsession.png" },
+    { name: "Open Handed", file: "open-Handed.png" },
+    { name: "Overzealous", file: "overzealous.png" },
+    { name: "Parental Guidance", file: "parentalGuidance.png" },
+    { name: "Pharmacy", file: "pharmacy.png" },
+    { name: "Plunderer's Instinct", file: "plunderersInstinct.png" },
+    { name: "Poised", file: "poised.png" },
+    { name: "Potential Energy", file: "potentialEnergy.png" },
+    { name: "Power Struggle", file: "powerStruggle.png" },
+    { name: "Premonition", file: "premonition.png" },
+    { name: "Prove Thyself", file: "proveThyself.png" },
+    { name: "Quick and Quiet", file: "quickAndQuiet.png" },
+    { name: "Quick Gambit", file: "quickGambit.png" },
+    { name: "Renewal", file: "renewal.png" },
+    { name: "Residual Manifest", file: "residualManifest.png" },
+    { name: "Resilience", file: "resilience.png" },
+    { name: "Saboteur", file: "saboteur.png" },
+    { name: "Scavenger", file: "scavenger.png" },
+    { name: "Self Care", file: "self-Care.png" },
+    { name: "Small Game", file: "smallGame.png" },
+    { name: "Sole Survivor", file: "soleSurvivor.png" },
+    { name: "Solidarity", file: "solidarity.png" },
+    { name: "Specialist", file: "specialist.png" },
+    { name: "Spine Chill", file: "spineChill.png" },
+    { name: "Sprint Burst", file: "sprintBurst.png" },
+    { name: "Stake Out", file: "stakeOut.png" },
+    { name: "Still Sight", file: "stillSight.png" },
+    { name: "Streetwise", file: "streetwise.png" },
+    { name: "Collective Stealth", file: "teamworkCollectiveStealth.png" },
+    { name: "Power of Two", file: "teamworkPowerOfTwo.png" },
+    { name: "Technician", file: "technician.png" },
+    { name: "Tenacity", file: "tenacity.png" },
+    { name: "This Is Not Happening", file: "thisIsNotHappening.png" },
+    { name: "Troubleshooter", file: "troubleshooter.png" },
+    { name: "Unbreakable", file: "unbreakable.png" },
+    { name: "Up The Ante", file: "upTheAnte.png" },
+    { name: "Urban Evenation", file: "urbanEvasion.png" },
+    { name: "Vigil", file: "vigil.png" },
+    { name: "Wake Up", file: "wakeUp.png" },
+    { name: "We'll Make It", file: "wellMakeIt.png" },
+    { name: "We're Gonna Live Forever", file: "wereGonnaLiveForever.png" },
+    { name: "Windows of Opportunity", file: "windowsOfOpportunity.png" }
+];
+
+const killerPerks = [
+    { name: "Agitation", file: "agitation.png" },
+    { name: "Alien Instinct", file: "alienInstinct.png" },
+    { name: "A Nurse's Calling", file: "aNursesCalling.png" },
+    { name: "Awakened Awareness", file: "awakenedAwareness.png" },
+    { name: "Bamboozle", file: "bamboozle.png" },
+    { name: "BBQ and Chilli", file: "barbecueAndChilli.png" },
+    { name: "Beast of Prey", file: "beastOfPrey.png" },
+    { name: "Bitter Murmur", file: "bitterMurmur.png" },
+    { name: "Blood Echo", file: "bloodEcho.png" },
+    { name: "Blood Hound", file: "bloodhound.png" },
+    { name: "Blood Warden", file: "bloodWarden.png" },
+    { name: "Breadown", file: "breakdown.png" },
+    { name: "Brutal Strength", file: "brutalStrength.png" },
+    { name: "Call of Brine", file: "callOfBrine.png" },
+    { name: "Corrupt Intervention", file: "corruptIntervention.png" },
+    { name: "Coulrophobia", file: "coulrophobia.png" },
+    { name: "Coup De Grace", file: "coupDeGr-3Fce.png" },
+    { name: "Cruel Limits", file: "cruelLimits.png" },
+    { name: "Dark Arrogance", file: "darkArrogance.png" },
+    { name: "Dark Devotion", file: "darkDevotion.png" },
+    { name: "Darkness Revealed", file: "darknessRevealed.png" },
+    { name: "Deadlock", file: "deadlock.png" },
+    { name: "Dead Man's Switch", file: "deadMansSwitch.png" },
+    { name: "Deathbound", file: "deathbound.png" },
+    { name: "Deerstalker", file: "deerstalker.png" },
+    { name: "Discordance", file: "discordance.png" },
+    { name: "Dissolution", file: "dissolution.png" },
+    { name: "Distressing", file: "distressing.png" },
+    { name: "Dragon's Grip", file: "dragonsGrip.png" },
+    { name: "Dying Light", file: "dyingLight.png" },
+    { name: "Enduring", file: "enduring.png" },
+    { name: "Eruption", file: "eruption.png" },
+    { name: "Fire Up", file: "fireUp.png" },
+    { name: "Forced Hesitation", file: "forcedHesitation.png" },
+    { name: "Forced Penance", file: "forcedPenance.png" },
+    { name: "Franklin's Demise", file: "franklinsDemise.png" },
+    { name: "Fugitive Chase", file: "furtiveChase.png" },
+    { name: "Game Afoot", file: "gameAfoot.png" },
+    { name: "Gearhead", file: "gearhead.png" },
+    { name: "Genetic Limits", file: "geneticLimits.png" },
+    { name: "Grim Embrace", file: "grimEmbrace.png" },
+    { name: "Hex: Blood Favour", file: "hexBloodFavour.png" },
+    { name: "Hex: Crowd Control", file: "hexCrowdControl.png" },
+    { name: "Hex: Devour Hope", file: "hexDevourHope.png" },
+    { name: "Hex: Face The Darkness", file: "hexFaceTheDarkness.png" },
+    { name: "Hex: Haunted Ground", file: "hexHauntedGround.png" },
+    { name: "Hex: Huntress Lullaby", file: "hexHuntressLullaby.png" },
+    { name: "Hex: No One Escapes Death", file: "hexNoOneEscapesDeath.png" },
+    { name: "Hex: Pentimento", file: "hexPentimento.png" },
+    { name: "Hex: Plaything", file: "hexPlaything.png" },
+    { name: "Hex: Retribution", file: "hexRetribution.png" },
+    { name: "Hex: Ruin", file: "hexRuin.png" },
+    { name: "Hex: The Third Seal", file: "hexTheThirdSeal.png" },
+    { name: "Hex: Thrill of The Hunt", file: "hexThrillOfTheHunt.png" },
+    { name: "Hex: Undying", file: "hexUndying.png" },
+    { name: "Hubris", file: "hubris.png" },
+    { name: "Hysteria", file: "hysteria.png" },
+    { name: "I'm All Ears", file: "imAllEars.png" },
+    { name: "Infectious Fright", file: "infectiousFright.png" },
+    { name: "Insidious", file: "insidious.png" },
+    { name: "Iron Grasp", file: "ironGrasp.png" },
+    { name: "Iron Maiden", file: "ironMaiden.png" },
+    { name: "Languid Touch", file: "languidTouch.png" },
+    { name: "Lethal Pursuer", file: "lethalPursuer.png" },
+    { name: "Leverage", file: "leverage.png" },
+    { name: "Lightborn", file: "lightborn.png" },
+    { name: "Machine Learning", file: "machineLearning.png" },
+    { name: "Mad Grit", file: "madGrit.png" },
+    { name: "Make Your Choice", file: "makeYourChoice.png" },
+    { name: "Merciless Storm", file: "mercilessStorm.png" },
+    { name: "Mindbreaker", file: "mindbreaker.png" },
+    { name: "Monitor and Abuse", file: "monitorAndAbuse.png" },
+    { name: "Nemesis", file: "nemesis.png" },
+    { name: "No Way Out", file: "noWayOut.png" },
+    { name: "Nowhere To Hide", file: "nowhereToHide.png" },
+    { name: "Oppression", file: "oppression.png" },
+    { name: "Overcharge", file: "overcharge.png" },
+    { name: "Overwhelming Presence", file: "overwhelmingPresence.png" },
+    { name: "Play With Your Food", file: "playWithYourFood.png" },
+    { name: "Pop Goes The Weasel", file: "popGoesTheWeasel.png" },
+    { name: "Predator", file: "predator.png" },
+    { name: "Rancor", file: "rancor.png" },
+    { name: "Rapid Brutality", file: "rapidBrutality.png" },
+    { name: "Remember Me", file: "rememberMe.png" },
+    { name: "Save The Best For Last", file: "saveTheBestForLast.png" },
+    { name: "Scourge Hook: Floods of Rage", file: "scourgeHookFloodsOfRage.png" },
+    { name: "Scourge Hook: Gift of Pain", file: "scourgeHookGiftOfPain.png" },
+    { name: "Scourge Hook: Hangman's Trick", file: "scourgeHookHangmansTrick.png" },
+    { name: "Scourge Hook: Monstrous Shrine", file: "scourgeHookMonstrousShrine.png" },
+    { name: "Scourge Hook: Pain Resonance", file: "scourgeHookPainResonance.png" },
+    { name: "Septic Touch", file: "septicTouch.png" },
+    { name: "Shadowborn", file: "shadowborn.png" },
+    { name: "Shattered Hope", file: "shatteredHope.png" },
+    { name: "Sloppy Butcher", file: "sloppyButcher.png" },
+    { name: "Spies From The Shadows", file: "spiesFromTheShadows.png" },
+    { name: "Spirit Fury", file: "spiritFury.png" },
+    { name: "Starstruck", file: "starstruck.png" },
+    { name: "Stridor", file: "stridor.png" },
+    { name: "Superior Anatomy", file: "superiorAnatomy.png" },
+    { name: "Surge", file: "surge.png" },
+    { name: "Surveillance", file: "surveillance.png" },
+    { name: "Terminus", file: "terminus.png" },
+    { name: "Territorial Imperative", file: "territorialImperative.png" },
+    { name: "Thanatophobia", file: "thanatophobia.png" },
+    { name: "Thrilling Tremors", file: "thrillingTremors.png" },
+    { name: "Thwack!", file: "thwack.png" },
+    { name: "Tinkerer", file: "tinkerer.png" },
+    { name: "Trail of Torment", file: "trailOfTorment.png" },
+    { name: "Ultimate Weapon", file: "ultimateWeapon.png" },
+    { name: "Unnerving Presence", file: "unnervingPresence.png" },
+    { name: "Unrelenting", file: "unrelenting.png" },
+    { name: "Weave Attunement", file: "weaveAttunement.png" },
+    { name: "Whispers", file: "whispers.png" },
+    { name: "Zanshin Tactics", file: "zanshinTactics.png" }
+];
+    
+    const perksContainer = document.getElementById("perks-container");
+    const roleButtons = document.querySelectorAll(".role-button");
+    const shuffleButton = document.getElementById("shuffle-button");
+    let currentRole = "survivor";
+
+    roleButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            roleButtons.forEach(btn => btn.classList.remove("active"));
+            button.classList.add("active");
+            currentRole = button.dataset.role;
+        });
+    });
+
+    function shuffleArray(array) {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    }
+
+    function shufflePerks() {
+        const perks = currentRole === "survivor" ? survivorPerks : killerPerks;
+        const shuffledPerks = shuffleArray(perks).slice(0, 4);
+
+        perksContainer.innerHTML = "";
+
+        shuffledPerks.forEach(perk => {
+            const perkCard = document.createElement("div");
+            perkCard.className = "perk-card";
+
+            const perkImage = document.createElement("img");
+            perkImage.className = "perk-image";
+            perkImage.src = `${currentRole === 'survivor' ? 'survivorperks' : 'killerperks'}/${perk.file}`;
+            perkImage.alt = perk.name;
+
+            const perkName = document.createElement("div");
+            perkName.className = "perk-name";
+            perkName.textContent = perk.name;
+
+            perkCard.appendChild(perkImage);
+            perkCard.appendChild(perkName);
+            perksContainer.appendChild(perkCard);
+        });
+    }
+
+    shuffleButton.addEventListener("click", shufflePerks);

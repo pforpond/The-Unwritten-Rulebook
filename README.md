@@ -1,3 +1,3 @@
 # The-Unwritten-Rulebook
  
-A website for submitting and voting upon the Unwritten Rules in Dead by Daylight.
+A website for reading the Unwritten Rules in Dead by Daylight.
