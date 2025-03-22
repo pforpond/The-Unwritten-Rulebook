@@ -312,7 +312,6 @@ function shuffleArray(array) {
     return shuffled;
 }
 
-// Modify the initializeEmptyPerkCards function to use noperk.png
 function initializeEmptyPerkCards() {
     perksContainer.innerHTML = "";
     
@@ -323,21 +322,15 @@ function initializeEmptyPerkCards() {
         
         const perkImage = document.createElement("img");
         perkImage.className = "perk-image";
-        perkImage.src = "noperk.png"; // Changed from placeholder to noperk.png
+        perkImage.src = "noperk.png";
         perkImage.alt = "No Perk";
         
         const perkName = document.createElement("div");
         perkName.className = "perk-name";
         perkName.textContent = "Select a role and shuffle";
         
-        const holdButton = document.createElement("button");
-        holdButton.className = "hold-button";
-        holdButton.textContent = "Hold";
-        holdButton.style.display = "none";
-        
         perkCard.appendChild(perkImage);
         perkCard.appendChild(perkName);
-        perkCard.appendChild(holdButton);
         perksContainer.appendChild(perkCard);
     }
 }
@@ -397,18 +390,12 @@ function updatePerkDisplay() {
         perkName.className = "perk-name";
         perkName.textContent = perk.name;
         
-        const holdButton = document.createElement("button");
-        holdButton.className = "hold-button";
-        holdButton.textContent = heldPerks[index] ? "Release" : "Hold";
-        holdButton.setAttribute("data-index", index);
-        
-        holdButton.addEventListener("click", (e) => {
-            const idx = parseInt(e.target.getAttribute("data-index"));
-            heldPerks[idx] = !heldPerks[idx];
+        // Instead of a visible button, make the card clickable
+        perkCard.addEventListener("click", () => {
+            heldPerks[index] = !heldPerks[index];
             
-            // Update the button text and card styling
-            e.target.textContent = heldPerks[idx] ? "Release" : "Hold";
-            if (heldPerks[idx]) {
+            // Update the card styling
+            if (heldPerks[index]) {
                 perkCard.classList.add("held");
             } else {
                 perkCard.classList.remove("held");
@@ -417,7 +404,6 @@ function updatePerkDisplay() {
         
         perkCard.appendChild(perkImage);
         perkCard.appendChild(perkName);
-        perkCard.appendChild(holdButton);
         perksContainer.appendChild(perkCard);
     });
 }
