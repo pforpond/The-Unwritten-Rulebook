@@ -6,6 +6,7 @@
     <title>Killer Rulebook | The Unwritten Rulebook</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="stylesheet" href="killer.css">
+    <!-- AWS SDK and DynamoDB client -->
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1015.0.min.js"></script>
 </head>
 <body>
@@ -58,12 +59,13 @@
         </div>
     </footer>
 
-     <script>
-        // Configure AWS SDK using environment variables
+    <script>
+        // Configure AWS SDK
         AWS.config.update({
-            region: process.env.AWS_REGION, // Region from environment variable
-            accessKeyId: process.env.AWS_ACCESS_KEY_ID, // Access Key from environment variable
-            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY // Secret Key from environment variable
+            region: 'eu-west-2', // Replace with your AWS region
+            credentials: new AWS.CognitoIdentityCredentials({
+                IdentityPoolId: 'eu-west-2:f8f16cb5-193e-428d-a909-abd6b44bf275' // Replace with your Cognito Identity Pool ID
+            })
         });
 
         // Create DynamoDB client
@@ -72,7 +74,7 @@
         // Function to fetch killer rules
         async function fetchKillerRules() {
             const params = {
-                TableName: process.env.DYNAMODB_TABLE_NAME, // Table name from environment variable
+                TableName: 'UnwrittenRules', // Replace with your DynamoDB table name
                 FilterExpression: 'RuleType = :ruleType',
                 ExpressionAttributeValues: {
                     ':ruleType': 'killer'
