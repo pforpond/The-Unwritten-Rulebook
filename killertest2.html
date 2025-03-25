@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Killer Rulebook | The Unwritten Rulebook</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="killer.css">
+    <!-- AWS SDK -->
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1015.0.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="nav">
+                <a href="rulebook-landing.html" class="logo"><img src="logo.png" alt="The Unwritten Rulebook"></a>
+                <div class="nav-buttons">
+                    <a href="killer.html" class="nav-button" data-title="Killer Rulebook">
+                        <img src="killer.png" alt="Killers">
+                    </a>
+                    <a href="survivor.html" class="nav-button" data-title="Survivor Rulebook">
+                        <img src="survivor.png" alt="Survivors">
+                    </a>
+                    <a href="perkshuffle.html" class="nav-button" data-title="Perk Shuffle">
+                        <img src="perkshuffle.png" alt="Perk Shuffle">
+                    </a>
+                    <a href="codes.html" class="nav-button" data-title="Codes">
+                        <img src="codes.png" alt="Codes">
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+    
+    <section class="page-title">
+        <div class="container">
+            <h1>The Killer Rulebook</h1>
+            <p class="subtitle">The unofficial community "rules" that killers are expected to follow in Dead by Daylight</p>
+        </div>
+    </section>
+    
+    <div class="container">
+        <p class="disclaimer">
+            The Unwritten Rules are more like guidelines than actual rules!
+        </p>
+        <div id="rules-container" class="rules-container">
+            <!-- Rules will be dynamically inserted here -->
+            <div id="loading-message">Loading rules...</div>
+        </div>
+        <p class="disclaimer">
+            The Unwritten Rules are more like guidelines than actual rules!
+        </p>
+    
+    <a href="#" class="back-to-top">↑</a>
+    
+    <footer class="footer">
+        <div class="container">
+            <p>The Unwritten Rulebook is a fan-made project and is not affiliated with Behaviour Interactive or Dead by Daylight.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Configure AWS SDK
+        AWS.config.update({
+            region: 'eu-west-2', // Specify your region
+            credentials: new AWS.CognitoIdentityCredentials({
+                IdentityPoolId: 'eu-west-2:f8f16cb5-193e-428d-a909-abd6b44bf275' // Replace with your actual Identity Pool ID
+            })
+        });
+
+        // Create DynamoDB client
+        const dynamodb = new AWS.DynamoDB.DocumentClient();
+
+        // Function to fetch killer rules
+        async function fetchKillerRules() {
+            const params = {
+                TableName: 'UnwrittenRules', // Confirm this matches your exact table name
+                FilterExpression: 'RuleType = :ruleType',
+                ExpressionAttributeValues: {
+                    ':ruleType': 'killer'
+                }
+            };
+
+            try {
+                const data = await dynamodb.scan(params).promise();
+                
+                // Debug: Log the entire response
+                console.log('DynamoDB Response:', data);
+                
+                const rulesContainer = document.getElementById('rules-container');
+                
+                // Clear loading message
+                rulesContainer.innerHTML = '';
+
+                // Verify data exists and has Items
+                if (!data.Items || data.Items.length === 0) {
+                    throw new Error('No rules found');
+                }
+
+                // Debug: Log individual items
+                console.log('Retrieved Items:', data.Items);
+
+                // Sort rules, but add extra safety checks
+                const sortedRules = data.Items.filter(rule => 
+                    rule.RuleID && rule.Title && rule.Description
+                ).sort((a, b) => 
+                    (a.RuleID || '').localeCompare(b.RuleID || '')
+                );
+
+                // Create rule elements with error handling
+                sortedRules.forEach(rule => {
+                    try {
+                        const ruleDiv = document.createElement('div');
+                        ruleDiv.className = 'rule';
+                        ruleDiv.id = rule.RuleID;
+
+                        ruleDiv.innerHTML = `
+                            <h3>${rule.Title || 'Untitled Rule'}</h3>
+                            <p>${rule.Description || 'No description available'}</p>
+                        `;
+
+                        rulesContainer.appendChild(ruleDiv);
+                    } catch (ruleError) {
+                        console.error('Error processing individual rule:', ruleError);
+                    }
+                });
+
+                // If no rules were added, show an error
+                if (rulesContainer.children.length === 0) {
+                    rulesContainer.innerHTML = `
+                        <p class="error">
+                            No valid rules could be loaded. Please check the database.
+                        </p>
+                    `;
+                }
+            } catch (error) {
+                console.error('Complete error details:', error);
+                const rulesContainer = document.getElementById('rules-container');
+                rulesContainer.innerHTML = `
+                    <p class="error">
+                        Unable to load rules. Error: ${error.message}
+                        Please check console for more details.
+                    </p>
+                `;
+            }
+        }
+
+        // Fetch rules when page loads
+        fetchKillerRules();
+    </script>
+</body>
+</html>
