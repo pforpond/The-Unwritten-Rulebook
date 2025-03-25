@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codes | The Unwritten Rulebook</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="codes.css">
+    <!-- AWS SDK and Cognito Libraries -->
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1058.0.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="nav">
+                <a href="rulebook-landing.html" class="logo"><img src="logo.png" alt="The Unwritten Rulebook"></a>
+                <div class="nav-buttons">
+                    <a href="killer.html" class="nav-button" data-title="Killer Rulebook">
+                        <img src="killer.png" alt="Killers">
+                    </a>
+                    <a href="survivor.html" class="nav-button" data-title="Survivor Rulebook">
+                        <img src="survivor.png" alt="Survivors">
+                    </a>
+                    <a href="perkshuffle.html" class="nav-button" data-title="Perk Shuffle">
+                        <img src="perkshuffle.png" alt="Perk Shuffle">
+                    </a>
+                    <a href="codes.html" class="nav-button" data-title="Codes">
+                        <img src="codes.png" alt="Codes">
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+    
+    <section class="page-title">
+        <div class="container">
+            <h1>Dead by Daylight Codes</h1>
+            <p class="subtitle">Active codes for in-game rewards, cosmetics, and exclusive items</p>
+        </div>
+    </section>
+    
+    <div class="container">
+        <p class="disclaimer">
+            Codes are provided for informational purposes only. Some codes may expire without notice.
+        </p>
+        
+        <div class="codes-container">
+            <div class="code-section" id="current-codes">
+                <h3>Current Codes</h3>
+                <ul class="code-list" id="current-codes-list"></ul>
+            </div>
+            
+            <div class="code-section" id="badge-charm-codes">
+                <h3>Pride Codes</h3>
+                <ul class="code-list" id="pride-codes-list"></ul>
+            </div>
+        </div>
+        
+        <p class="disclaimer">
+            Remember to enter these codes in the in-game store to claim your rewards!
+        </p>
+    </div>
+    
+    <div class="copied-message" id="copied-message">Code copied to clipboard!</div>
+    
+    <a href="#" class="back-to-top">↑</a>
+    
+    <footer class="footer">
+        <div class="container">
+            <p>The Unwritten Rulebook is a fan-made project and is not affiliated with Behaviour Interactive or Dead by Daylight.</p>
+        </div>
+    </footer>
+    
+    <script>
+        // AWS Configuration
+        const REGION = 'eu-west-2'; // e.g., 'us-east-1'
+        const IDENTITY_POOL_ID = 'eu-west-2:f8f16cb5-193e-428d-a909-abd6b44bf275';
+
+        // Configure the AWS SDK
+        AWS.config.region = REGION;
+        AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+            IdentityPoolId: IDENTITY_POOL_ID
+        });
+
+        // Initialize DynamoDB
+        const dynamodb = new AWS.DynamoDB.DocumentClient();
+
+        // Fetch codes from DynamoDB
+        function fetchCodes() {
+            const params = {
+                TableName: 'StoreCodes'
+            };
+
+            dynamodb.scan(params, (err, data) => {
+                if (err) {
+                    console.error('Error fetching codes:', err);
+                    return;
+                }
+
+                // Separate codes by type
+                const currentCodes = data.Items.filter(item => item.CodeType === 'temp');
+                const prideCodes = data.Items.filter(item => item.CodeType === 'pride');
+
+                // Populate current codes list
+                const currentCodesList = document.getElementById('current-codes-list');
+                currentCodes.forEach(code => {
+                    const li = document.createElement('li');
+                    li.className = 'code-item';
+                    li.innerHTML = `
+                        <span class="code">${code.CodeID}</span>
+                        <button class="copy-button" onclick="copyToClipboard('${code.CodeID}')">Copy</button>
+                        <span class="code-description">${code.CodeDescription}</span>
+                    `;
+                    currentCodesList.appendChild(li);
+                });
+
+                // Populate pride codes list
+                const prideCodesList = document.getElementById('pride-codes-list');
+                prideCodes.forEach(code => {
+                    const li = document.createElement('li');
+                    li.className = 'code-item';
+                    li.innerHTML = `
+                        <span class="code">${code.CodeID}</span>
+                        <button class="copy-button" onclick="copyToClipboard('${code.CodeID}')">Copy</button>
+                        <span class="code-description">${code.CodeDescription}</span>
+                    `;
+                    prideCodesList.appendChild(li);
+                });
+            });
+        }
+
+        // Show/hide back to top button
+        window.addEventListener('scroll', function() {
+            var backToTop = document.querySelector('.back-to-top');
+            if (window.pageYOffset > 300) {
+                backToTop.style.display = 'block';
+            } else {
+                backToTop.style.display = 'none';
+            }
+        });
+        
+        // Smooth scroll to top
+        document.querySelector('.back-to-top').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // Copy code to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                var message = document.getElementById('copied-message');
+                message.style.display = 'block';
+                setTimeout(function() {
+                    message.style.display = 'none';
+                }, 2000);
+            }, function(err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+
+        // Fetch codes when page loads
+        window.onload = fetchCodes;
+    </script>
+</body>
+</html>
