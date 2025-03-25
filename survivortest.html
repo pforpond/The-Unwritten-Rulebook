@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Killer Rulebook | The Unwritten Rulebook</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="stylesheet" href="killer.css">
+    <link rel="stylesheet" href="survivor.css">
     <!-- AWS SDK -->
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1015.0.min.js"></script>
 </head>
@@ -34,8 +34,8 @@
     
     <section class="page-title">
         <div class="container">
-            <h1>The Killer Rulebook</h1>
-            <p class="subtitle">The unofficial community "rules" that killers are expected to follow in Dead by Daylight</p>
+            <h1>The Survivor Rulebook</h1>
+            <p class="subtitle">The unofficial community "rules" that survivors are expected to follow in Dead by Daylight</p>
         </div>
     </section>
     
@@ -59,10 +59,10 @@
         </div>
     </footer>
 
-    <script>
+        <script>
         // Configure AWS SDK
         AWS.config.update({
-            region: 'eu-west-2', // Specify your region
+            region: 'eu-west-2', // Your AWS region
             credentials: new AWS.CognitoIdentityCredentials({
                 IdentityPoolId: 'eu-west-2:f8f16cb5-193e-428d-a909-abd6b44bf275' // Replace with your actual Identity Pool ID
             })
@@ -72,81 +72,91 @@
         const dynamodb = new AWS.DynamoDB.DocumentClient();
 
         // Function to fetch killer rules
-        async function fetchKillerRules() {
+        async function fetchSurvivorRules() {
             const params = {
-                TableName: 'UnwrittenRules', // Confirm this matches your exact table name
+                TableName: 'UnwrittenRules', // Your table name
                 FilterExpression: 'RuleType = :ruleType',
                 ExpressionAttributeValues: {
-                    ':ruleType': 'killer'
+                    ':ruleType': 'survivor'
                 }
             };
 
             try {
+                // Log raw parameters
+                console.log('DynamoDB Scan Parameters:', params);
+
                 const data = await dynamodb.scan(params).promise();
                 
-                // Debug: Log the entire response
-                console.log('DynamoDB Response:', data);
+                // Log entire response
+                console.log('Full DynamoDB Response:', data);
                 
+                // Log items directly
+                console.log('Raw Items:', data.Items);
+
                 const rulesContainer = document.getElementById('rules-container');
                 
                 // Clear loading message
                 rulesContainer.innerHTML = '';
 
-                // Verify data exists and has Items
-                if (!data.Items || data.Items.length === 0) {
-                    throw new Error('No rules found');
+                // Comprehensive error checking
+                if (!data.Items || !Array.isArray(data.Items)) {
+                    throw new Error('Invalid data structure: Items is not an array');
                 }
 
-                // Debug: Log individual items
-                console.log('Retrieved Items:', data.Items);
+                // Detailed logging and processing
+                const processedRules = data.Items.map((rule, index) => {
+                    console.log(`Rule ${index} raw data:`, rule);
+                    
+                    // Comprehensive property checking
+                    const ruleId = rule.RuleID !== undefined ? rule.RuleID : `fallback-${index}`;
+                    const title = rule.Title || 'Untitled Rule';
+                    const description = rule.Description || 'No description available';
 
-                // Sort rules, but add extra safety checks
-                const sortedRules = data.Items.filter(rule => 
-                    rule.RuleID && rule.Title && rule.Description
-                ).sort((a, b) => 
-                    (a.RuleID || '').localeCompare(b.RuleID || '')
-                );
-
-                // Create rule elements with error handling
-                sortedRules.forEach(rule => {
-                    try {
-                        const ruleDiv = document.createElement('div');
-                        ruleDiv.className = 'rule';
-                        ruleDiv.id = rule.RuleID;
-
-                        ruleDiv.innerHTML = `
-                            <h3>${rule.Title || 'Untitled Rule'}</h3>
-                            <p>${rule.Description || 'No description available'}</p>
-                        `;
-
-                        rulesContainer.appendChild(ruleDiv);
-                    } catch (ruleError) {
-                        console.error('Error processing individual rule:', ruleError);
-                    }
+                    return {
+                        id: ruleId,
+                        title: title,
+                        description: description
+                    };
                 });
 
-                // If no rules were added, show an error
-                if (rulesContainer.children.length === 0) {
-                    rulesContainer.innerHTML = `
-                        <p class="error">
-                            No valid rules could be loaded. Please check the database.
-                        </p>
+                // Sort rules, using a safe comparison
+                const sortedRules = processedRules.sort((a, b) => 
+                    (a.id || '').toString().localeCompare((b.id || '').toString())
+                );
+
+                // Create rule elements
+                sortedRules.forEach(rule => {
+                    const ruleDiv = document.createElement('div');
+                    ruleDiv.className = 'rule';
+                    ruleDiv.id = rule.id;
+
+                    ruleDiv.innerHTML = `
+                        <h3>${rule.title}</h3>
+                        <p>${rule.description}</p>
                     `;
+
+                    rulesContainer.appendChild(ruleDiv);
+                });
+
+                // Final check
+                if (rulesContainer.children.length === 0) {
+                    throw new Error('No rules could be processed');
                 }
+
             } catch (error) {
                 console.error('Complete error details:', error);
                 const rulesContainer = document.getElementById('rules-container');
                 rulesContainer.innerHTML = `
                     <p class="error">
-                        Unable to load rules. Error: ${error.message}
-                        Please check console for more details.
+                        Unable to load rules. Detailed Error: ${error.message}
+                        Please check the console for more information.
                     </p>
                 `;
             }
         }
 
         // Fetch rules when page loads
-        fetchKillerRules();
+        fetchSurvivorRules();
     </script>
 </body>
 </html>

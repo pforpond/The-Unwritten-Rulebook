@@ -6,6 +6,8 @@
     <title>Killer Rulebook | The Unwritten Rulebook</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="stylesheet" href="killer.css">
+    <!-- AWS SDK -->
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1015.0.min.js"></script>
 </head>
 <body>
     <header>
@@ -41,57 +43,9 @@
         <p class="disclaimer">
             The Unwritten Rules are more like guidelines than actual rules!
         </p>
-        <div class="rules-container">
-            <div class="rule" id="camping">
-                <h3>Avoid Camping</h3>
-                <p>
-                    "Camping" refers to staying very close to a hooked survivor, preventing other survivors from safely rescuing them. 
-                    A killer should hook a survivor and then leave the area to allow for potential rescues.
-                </p>
-            </div>
-            
-            <div class="rule" id="tunneling">
-                <h3>Avoid Tunnelling</h3>
-                <p>
-                    "Tunneling" is the practice of focusing exclusively on one survivor until they are eliminated from the game, 
-                    especially targeting a survivor who has just been unhooked. If possible attempt to spread the hooks equally between
-                    survivors.
-                </p>
-            </div>
-            
-            <div class="rule" id="slugging">
-                <h3>Avoid Excessive Slugging</h3>
-                <p>
-                    "Slugging" refers to downing survivors and leaving them on the ground instead of hooking them, often done to slow down the game
-                    or to down multiple survivors at once. If all survivors are down the killer should begin hooking them instead of waiting
-                    for them to bleed out.
-                </p>
-            </div>
-            
-            <div class="rule" id="mercy">
-                <h3>Consider Letting the Last Survivor Get Away</h3>
-                <p>
-                    When only one survivor remains, especially if they were not toxic and their team abandoned them,
-                    the killer should show mercy by allowing them to escape through the hatch or exit gate. Killers should also consider this if
-                    the last survivor gifts them their item.
-                </p>
-            </div>
-            
-            <div class="rule" id="bugs">
-                <h3>Avoid Taking Advantage of Bugs</h3>
-                <p>
-                    If a survivor is clearly suffering from one of the many bugs Dead by Daylight offers, the killer should consider not
-                    taking advantage of this to keep the game fair.
-                </p>
-            </div>
-            
-            <div class="rule" id="toxic">
-                <h3>Avoid Being Toxic</h3>
-                <p>
-                    After a match, killers are expected to be gracious in both victory and defeat. 
-                    Phrases like "EZ" or "baby survivors" are considered toxic and unsportsmanlike.
-                </p>
-            </div>
+        <div id="rules-container" class="rules-container">
+            <!-- Rules will be dynamically inserted here -->
+            <div id="loading-message">Loading rules...</div>
         </div>
         <p class="disclaimer">
             The Unwritten Rules are more like guidelines than actual rules!
@@ -104,5 +58,105 @@
             <p>The Unwritten Rulebook is a fan-made project and is not affiliated with Behaviour Interactive or Dead by Daylight.</p>
         </div>
     </footer>
+
+        <script>
+        // Configure AWS SDK
+        AWS.config.update({
+            region: 'eu-west-2', // Your AWS region
+            credentials: new AWS.CognitoIdentityCredentials({
+                IdentityPoolId: 'eu-west-2:f8f16cb5-193e-428d-a909-abd6b44bf275' // Replace with your actual Identity Pool ID
+            })
+        });
+
+        // Create DynamoDB client
+        const dynamodb = new AWS.DynamoDB.DocumentClient();
+
+        // Function to fetch killer rules
+        async function fetchKillerRules() {
+            const params = {
+                TableName: 'UnwrittenRules', // Your table name
+                FilterExpression: 'RuleType = :ruleType',
+                ExpressionAttributeValues: {
+                    ':ruleType': 'killer'
+                }
+            };
+
+            try {
+                // Log raw parameters
+                console.log('DynamoDB Scan Parameters:', params);
+
+                const data = await dynamodb.scan(params).promise();
+                
+                // Log entire response
+                console.log('Full DynamoDB Response:', data);
+                
+                // Log items directly
+                console.log('Raw Items:', data.Items);
+
+                const rulesContainer = document.getElementById('rules-container');
+                
+                // Clear loading message
+                rulesContainer.innerHTML = '';
+
+                // Comprehensive error checking
+                if (!data.Items || !Array.isArray(data.Items)) {
+                    throw new Error('Invalid data structure: Items is not an array');
+                }
+
+                // Detailed logging and processing
+                const processedRules = data.Items.map((rule, index) => {
+                    console.log(`Rule ${index} raw data:`, rule);
+                    
+                    // Comprehensive property checking
+                    const ruleId = rule.RuleID !== undefined ? rule.RuleID : `fallback-${index}`;
+                    const title = rule.Title || 'Untitled Rule';
+                    const description = rule.Description || 'No description available';
+
+                    return {
+                        id: ruleId,
+                        title: title,
+                        description: description
+                    };
+                });
+
+                // Sort rules, using a safe comparison
+                const sortedRules = processedRules.sort((a, b) => 
+                    (a.id || '').toString().localeCompare((b.id || '').toString())
+                );
+
+                // Create rule elements
+                sortedRules.forEach(rule => {
+                    const ruleDiv = document.createElement('div');
+                    ruleDiv.className = 'rule';
+                    ruleDiv.id = rule.id;
+
+                    ruleDiv.innerHTML = `
+                        <h3>${rule.title}</h3>
+                        <p>${rule.description}</p>
+                    `;
+
+                    rulesContainer.appendChild(ruleDiv);
+                });
+
+                // Final check
+                if (rulesContainer.children.length === 0) {
+                    throw new Error('No rules could be processed');
+                }
+
+            } catch (error) {
+                console.error('Complete error details:', error);
+                const rulesContainer = document.getElementById('rules-container');
+                rulesContainer.innerHTML = `
+                    <p class="error">
+                        Unable to load rules. Detailed Error: ${error.message}
+                        Please check the console for more information.
+                    </p>
+                `;
+            }
+        }
+
+        // Fetch rules when page loads
+        fetchKillerRules();
+    </script>
 </body>
 </html>
