@@ -6,6 +6,8 @@
     <title>Codes | The Unwritten Rulebook</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="stylesheet" href="codes.css">
+    <!-- AWS SDK and Cognito Libraries -->
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1058.0.min.js"></script>
 </head>
 <body>
     <header>
@@ -45,224 +47,12 @@
         <div class="codes-container">
             <div class="code-section" id="current-codes">
                 <h3>Current Codes</h3>
-                <ul class="code-list">
-                    <li class="code-item">
-                        <span class="code">CARNANEVOA25</span>
-                        <button class="copy-button" onclick="copyToClipboard('CARNANEVOA25')">Copy</button>
-                        <span class="code-description">300K Bloodpoints, 30x Rift Fragments, Confetti Mask Badge, Hanging Umbrellas Banner</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">IFLOOKSCOULDCHILL</span>
-                        <button class="copy-button" onclick="copyToClipboard('IFLOOKSCOULDCHILL')">Copy</button>
-                        <span class="code-description">Frosty Eyes Killer Cosmetics</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">REDDIT1MIL</span>
-                        <button class="copy-button" onclick="copyToClipboard('REDDIT1MIL')">Copy</button>
-                        <span class="code-description">8-bit Crow Badge</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">PARTYHATS24</span>
-                        <button class="copy-button" onclick="copyToClipboard('PARTYHATS24')">Copy</button>
-                        <span class="code-description">4th + 5th Anniversary Crown Cosmetics</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">LETSROLL</span>
-                        <button class="copy-button" onclick="copyToClipboard('LETSROLL')">Copy</button>
-                        <span class="code-description">Dwight Charm</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">WARRIORPUPPERS</span>
-                        <button class="copy-button" onclick="copyToClipboard('WARRIORPUPPERS')">Copy</button>
-                        <span class="code-description">Warrior Puppers Charm</span>
-                    </li>
-                </ul>
+                <ul class="code-list" id="current-codes-list"></ul>
             </div>
             
             <div class="code-section" id="badge-charm-codes">
                 <h3>Pride Codes</h3>
-                <ul class="code-list">
-                    <li class="code-item">
-                        <span class="code">BDGPRIDE</span>
-                        <button class="copy-button" onclick="copyToClipboard('BDGPRIDE')">Copy</button>
-                        <span class="code-description">Pride Badge</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">BDGPRG</span>
-                        <button class="copy-button" onclick="copyToClipboard('BDGPRG')">Copy</button>
-                        <span class="code-description">Progress Pride Badge</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">BDGL</span>
-                        <button class="copy-button" onclick="copyToClipboard('BDGL')">Copy</button>
-                        <span class="code-description">WLW Badge</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">BDGM</span>
-                        <button class="copy-button" onclick="copyToClipboard('BDGM')">Copy</button>
-                        <span class="code-description">MLM Badge</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">BDGB</span>
-                        <button class="copy-button" onclick="copyToClipboard('BDGB')">Copy</button>
-                        <span class="code-description">Bisexual Badge</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">BDGP</span>
-                        <button class="copy-button" onclick="copyToClipboard('BDGP')">Copy</button>
-                        <span class="code-description">Pansexual Badge</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">BDGT</span>
-                        <button class="copy-button" onclick="copyToClipboard('BDGT')">Copy</button>
-                        <span class="code-description">Transgender Badge</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">BDGGQ</span>
-                        <button class="copy-button" onclick="copyToClipboard('BDGGQ')">Copy</button>
-                        <span class="code-description">Genderqueer player badge</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">BDGGF</span>
-                        <button class="copy-button" onclick="copyToClipboard('BDGGF')">Copy</button>
-                        <span class="code-description">Genderfluid Badge</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">BDGNB</span>
-                        <button class="copy-button" onclick="copyToClipboard('BDGNB')">Copy</button>
-                        <span class="code-description">Non-binary Badge</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">BDGIS</span>
-                        <button class="copy-button" onclick="copyToClipboard('BDGIS')">Copy</button>
-                        <span class="code-description">Intersex Badge</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">BDGAG</span>
-                        <button class="copy-button" onclick="copyToClipboard('BDGAG')">Copy</button>
-                        <span class="code-description">Agender Badge</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">BDG2S</span>
-                        <button class="copy-button" onclick="copyToClipboard('BDG2S')">Copy</button>
-                        <span class="code-description">Two-spirit Badge</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">BDGPA</span>
-                        <button class="copy-button" onclick="copyToClipboard('BDGPA')">Copy</button>
-                        <span class="code-description">Polyamory Badge</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">BDGAS</span>
-                        <button class="copy-button" onclick="copyToClipboard('BDGAS')">Copy</button>
-                        <span class="code-description">Asexual Badge</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">BDGAR</span>
-                        <button class="copy-button" onclick="copyToClipboard('BDGAR')">Copy</button>
-                        <span class="code-description">Aromantic Badge</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">BDGDM</span>
-                        <button class="copy-button" onclick="copyToClipboard('BDGDM')">Copy</button>
-                        <span class="code-description">Demisexual Badge</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">POLYFLAG</span>
-                        <button class="copy-button" onclick="copyToClipboard('POLYFLAG')">Copy</button>
-                        <span class="code-description">Polyamory Charm</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">DEMISFLAG</span>
-                        <button class="copy-button" onclick="copyToClipboard('DEMISFLAG')">Copy</button>
-                        <span class="code-description">Demisexual Charm</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">AROMFLAG</span>
-                        <button class="copy-button" onclick="copyToClipboard('AROMFLAG')">Copy</button>
-                        <span class="code-description">Aromantic flag charm</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">TWOSFLAG</span>
-                        <button class="copy-button" onclick="copyToClipboard('TWOSFLAG')">Copy</button>
-                        <span class="code-description">Two-spirit Charm</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">FLAGL</span>
-                        <button class="copy-button" onclick="copyToClipboard('FLAGL')">Copy</button>
-                        <span class="code-description">WLW Charm</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">MFLAG</span>
-                        <button class="copy-button" onclick="copyToClipboard('MFLAG')">Copy</button>
-                        <span class="code-description">MLM Charm</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">FLAGB</span>
-                        <button class="copy-button" onclick="copyToClipboard('FLAGB')">Copy</button>
-                        <span class="code-description">Bisexual Charm</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">FLAGP</span>
-                        <button class="copy-button" onclick="copyToClipboard('FLAGP')">Copy</button>
-                        <span class="code-description">Pansexual Charm</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">FLAGT</span>
-                        <button class="copy-button" onclick="copyToClipboard('FLAGT')">Copy</button>
-                        <span class="code-description">Transgender Charm</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">ISFLAG</span>
-                        <button class="copy-button" onclick="copyToClipboard('ISFLAG')">Copy</button>
-                        <span class="code-description">Intersex Charm</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">AFLAGG</span>
-                        <button class="copy-button" onclick="copyToClipboard('AFLAGG')">Copy</button>
-                        <span class="code-description">Agender Charm</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">GFLAGF</span>
-                        <button class="copy-button" onclick="copyToClipboard('GFLAGF')">Copy</button>
-                        <span class="code-description">Genderfluid Charm</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">NBFLAG</span>
-                        <button class="copy-button" onclick="copyToClipboard('NBFLAG')">Copy</button>
-                        <span class="code-description">Non-binary Charm</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">GFLAGQ</span>
-                        <button class="copy-button" onclick="copyToClipboard('GFLAGQ')">Copy</button>
-                        <span class="code-description">Genderqueer Charm</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">AFLAGS</span>
-                        <button class="copy-button" onclick="copyToClipboard('AFLAGS')">Copy</button>
-                        <span class="code-description">Asexual Charm</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">KINDRD</span>
-                        <button class="copy-button" onclick="copyToClipboard('KINDRD')">Copy</button>
-                        <span class="code-description">Glance of Pride Charm</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">CAWCAW</span>
-                        <button class="copy-button" onclick="copyToClipboard('CAWCAW')">Copy</button>
-                        <span class="code-description">Feathers of Pride Charm</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">PRIDE</span>
-                        <button class="copy-button" onclick="copyToClipboard('PRIDE')">Copy</button>
-                        <span class="code-description">Rainbow Charm</span>
-                    </li>
-                    <li class="code-item">
-                        <span class="code">PRIDE2022</span>
-                        <button class="copy-button" onclick="copyToClipboard('PRIDE2022')">Copy</button>
-                        <span class="code-description">Progress Pride Charm</span>
-                    </li>
-                </ul>
+                <ul class="code-list" id="pride-codes-list"></ul>
             </div>
         </div>
         
@@ -282,6 +72,63 @@
     </footer>
     
     <script>
+        // AWS Configuration
+        const REGION = 'eu-west-2'; // e.g., 'us-east-1'
+        const IDENTITY_POOL_ID = 'eu-west-2:f8f16cb5-193e-428d-a909-abd6b44bf275';
+
+        // Configure the AWS SDK
+        AWS.config.region = REGION;
+        AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+            IdentityPoolId: IDENTITY_POOL_ID
+        });
+
+        // Initialize DynamoDB
+        const dynamodb = new AWS.DynamoDB.DocumentClient();
+
+        // Fetch codes from DynamoDB
+        function fetchCodes() {
+            const params = {
+                TableName: 'StoreCodes'
+            };
+
+            dynamodb.scan(params, (err, data) => {
+                if (err) {
+                    console.error('Error fetching codes:', err);
+                    return;
+                }
+
+                // Separate codes by type
+                const currentCodes = data.Items.filter(item => item.CodeType === 'temp');
+                const prideCodes = data.Items.filter(item => item.CodeType === 'pride');
+
+                // Populate current codes list
+                const currentCodesList = document.getElementById('current-codes-list');
+                currentCodes.forEach(code => {
+                    const li = document.createElement('li');
+                    li.className = 'code-item';
+                    li.innerHTML = `
+                        <span class="code">${code.CodeID}</span>
+                        <button class="copy-button" onclick="copyToClipboard('${code.CodeID}')">Copy</button>
+                        <span class="code-description">${code.CodeDescription}</span>
+                    `;
+                    currentCodesList.appendChild(li);
+                });
+
+                // Populate pride codes list
+                const prideCodesList = document.getElementById('pride-codes-list');
+                prideCodes.forEach(code => {
+                    const li = document.createElement('li');
+                    li.className = 'code-item';
+                    li.innerHTML = `
+                        <span class="code">${code.CodeID}</span>
+                        <button class="copy-button" onclick="copyToClipboard('${code.CodeID}')">Copy</button>
+                        <span class="code-description">${code.CodeDescription}</span>
+                    `;
+                    prideCodesList.appendChild(li);
+                });
+            });
+        }
+
         // Show/hide back to top button
         window.addEventListener('scroll', function() {
             var backToTop = document.querySelector('.back-to-top');
@@ -313,6 +160,9 @@
                 console.error('Could not copy text: ', err);
             });
         }
+
+        // Fetch codes when page loads
+        window.onload = fetchCodes;
     </script>
 </body>
 </html>
