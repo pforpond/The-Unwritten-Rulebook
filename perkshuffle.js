@@ -390,11 +390,10 @@ function updatePerkDisplay() {
         perkName.className = "perk-name";
         perkName.textContent = perk.name;
         
-        // Instead of a visible button, make the card clickable
+        // click card to hold perk
         perkCard.addEventListener("click", () => {
             heldPerks[index] = !heldPerks[index];
             
-            // Update the card styling
             if (heldPerks[index]) {
                 perkCard.classList.add("held");
             } else {
@@ -408,8 +407,6 @@ function updatePerkDisplay() {
     });
 }
 
-// Initial setup
 initializeEmptyPerkCards();
 
-// Add event listener for shuffle button
 shuffleButton.addEventListener("click", shufflePerks);
