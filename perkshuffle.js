@@ -107,7 +107,6 @@ const survivorPerks = [
     { name: "Reactive Healing", file: "reactiveHealing.png" },
     { name: "Reassurance", file: "reassurance.png" },
     { name: "Red Herring", file: "redHerring.png" },
-    { name: "Renewal", file: "renewal.png" },
     { name: "Repressed Alliance", file: "repressedAlliance.png" },
     { name: "Residual Manifest", file: "residualManifest.png" },
     { name: "Resilience", file: "resilience.png" },
