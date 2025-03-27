@@ -70,7 +70,6 @@ const survivorPerks = [
     { name: "Hyperfocus", file: "hyperfocus.png" },
     { name: "Inner Focus", file: "innerFocus.png" },
     { name: "Inner Healing", file: "innerHealing.png" },
-    { name: "Inner Strength", file: "innerStrength.png" },
     { name: "Invocation: Treacherous Crows", file: "invocationTreacherousCrows.png" },
     { name: "Invocation: Weaving Spiders", file: "invocationWeavingSpiders.png" },
     { name: "Iron Will", file: "ironWill.png" },
