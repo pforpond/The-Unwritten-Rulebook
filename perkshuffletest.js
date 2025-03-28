@@ -1,222 +1,50 @@
-import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
-import { unmarshall } from "@aws-sdk/util-dynamodb";
-import { fromCognitoIdentityPool } from "@aws-sdk/credential-providers";
+import AWS from 'aws-sdk';
 
-// Configure Cognito Identity Pool credentials
-const client = new DynamoDBClient({ 
-    region: "eu-west-2",
-    credentials: fromCognitoIdentityPool({
-        clientConfig: { region: "eu-west-2" },
-        identityPoolId: "eu-west-2:f8f16cb5-193e-428d-a909-abd6b44bf275"
+// AWS Configuration
+AWS.config.update({
+    region: 'eu-west-2', // e.g., us-east-1
+    credentials: new AWS.CognitoIdentityCredentials({
+        IdentityPoolId: 'eu-west-2:f8f16cb5-193e-428d-a909-abd6b44bf275'
     })
 });
 
-// Table name for all perks
-const GAME_PERKS_TABLE = "GamePerks";
+const dynamodb = new AWS.DynamoDB.DocumentClient();
 
-class PerkManager {
-    constructor() {
-        this.survivorPerks = [];
-        this.killerPerks = [];
-        this.currentRole = "survivor";
-        this.currentPerks = [];
-        this.heldPerks = [false, false, false, false];
-    }
+async function fetchPerks() {
+    const params = {
+        TableName: 'GamePerks'
+    };
 
-    async fetchPerks() {
-        try {
-            // Fetch survivor perks
-            const survivorParams = {
-                TableName: GAME_PERKS_TABLE,
-                IndexName: "PerkTypeIndex", // Use a GSI if needed
-                KeyConditionExpression: "PerkType = :type",
-                ExpressionAttributeValues: {
-                    ":type": { S: "survivor" }
-                }
+    try {
+        const data = await dynamodb.scan(params).promise();
+        const perks = data.Items;
+
+        const survivorPerks = [];
+        const killerPerks = [];
+
+        perks.forEach(perk => {
+            const perkData = {
+                name: perk.PerkName,
+                file: `${perk.Folder}/${perk.Filename}`
             };
-            const survivorResult = await client.send(new QueryCommand(survivorParams));
             
-            // Convert DynamoDB format to usable objects
-            this.survivorPerks = survivorResult.Items.map(item => {
-                const perk = unmarshall(item);
-                return {
-                    name: perk.PerkName,
-                    file: perk.Filename,
-                    folder: perk.Folder
-                };
-            });
-
-            // Fetch killer perks
-            const killerParams = {
-                TableName: GAME_PERKS_TABLE,
-                IndexName: "PerkTypeIndex", // Use a GSI if needed
-                KeyConditionExpression: "PerkType = :type",
-                ExpressionAttributeValues: {
-                    ":type": { S: "killer" }
-                }
-            };
-            const killerResult = await client.send(new QueryCommand(killerParams));
-            
-            // Convert DynamoDB format to usable objects
-            this.killerPerks = killerResult.Items.map(item => {
-                const perk = unmarshall(item);
-                return {
-                    name: perk.PerkName,
-                    file: perk.Filename,
-                    folder: perk.Folder
-                };
-            });
-
-        } catch (error) {
-            console.error("Error fetching perks:", error);
-            throw error;
-        }
-    }
-
-    shuffleArray(array) {
-        const shuffled = [...array];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-        }
-        return shuffled;
-    }
-
-    shufflePerks() {
-        const perks = this.currentRole === "survivor" ? this.survivorPerks : this.killerPerks;
-        let availablePerks = [...perks];
-        
-        // If first shuffle, initialize current perks
-        if (this.currentPerks.length === 0) {
-            this.currentPerks = this.shuffleArray(perks).slice(0, 4);
-            this.heldPerks = [false, false, false, false];
-        } else {
-            // Remove held perks from available perks to avoid duplicates
-            for (let i = 0; i < 4; i++) {
-                if (this.heldPerks[i]) {
-                    const perkName = this.currentPerks[i].name;
-                    availablePerks = availablePerks.filter(p => p.name !== perkName);
-                }
+            if (perk.PerkType.toLowerCase() === 'survivor') {
+                survivorPerks.push(perkData);
+            } else if (perk.PerkType.toLowerCase() === 'killer') {
+                killerPerks.push(perkData);
             }
-            
-            // Shuffle remaining perks
-            const shuffledPerks = this.shuffleArray(availablePerks);
-            
-            // Replace non-held perks
-            let shuffledIndex = 0;
-            for (let i = 0; i < 4; i++) {
-                if (!this.heldPerks[i]) {
-                    this.currentPerks[i] = shuffledPerks[shuffledIndex];
-                    shuffledIndex++;
-                }
-            }
-        }
-        
-        this.updatePerkDisplay();
-    }
-
-    updatePerkDisplay() {
-        const perksContainer = document.getElementById("perks-container");
-        // Clear the container
-        perksContainer.innerHTML = "";
-        
-        this.currentPerks.forEach((perk, index) => {
-            const perkCard = document.createElement("div");
-            perkCard.className = "perk-card";
-            perkCard.dataset.index = index;
-            
-            if (this.heldPerks[index]) {
-                perkCard.classList.add("held");
-            }
-            
-            const perkImage = document.createElement("img");
-            perkImage.className = "perk-image";
-            perkImage.src = `${perk.folder}/${perk.file}`;
-            perkImage.alt = perk.name;
-            
-            const perkName = document.createElement("div");
-            perkName.className = "perk-name";
-            perkName.textContent = perk.name;
-            
-            // click card to hold perk
-            perkCard.addEventListener("click", () => {
-                this.heldPerks[index] = !this.heldPerks[index];
-                
-                if (this.heldPerks[index]) {
-                    perkCard.classList.add("held");
-                } else {
-                    perkCard.classList.remove("held");
-                }
-            });
-            
-            perkCard.appendChild(perkImage);
-            perkCard.appendChild(perkName);
-            perksContainer.appendChild(perkCard);
-        });
-    }
-
-    initializeEmptyPerkCards() {
-        const perksContainer = document.getElementById("perks-container");
-        perksContainer.innerHTML = "";
-        
-        for (let i = 0; i < 4; i++) {
-            const perkCard = document.createElement("div");
-            perkCard.className = "perk-card";
-            perkCard.dataset.index = i;
-            
-            const perkImage = document.createElement("img");
-            perkImage.className = "perk-image";
-            perkImage.src = "noperk.png";
-            perkImage.alt = "No Perk";
-            
-            const perkName = document.createElement("div");
-            perkName.className = "perk-name";
-            perkName.textContent = "Select a role and shuffle";
-            
-            perkCard.appendChild(perkImage);
-            perkCard.appendChild(perkName);
-            perksContainer.appendChild(perkCard);
-        }
-    }
-
-    async initialize() {
-        // Fetch perks from DynamoDB
-        await this.fetchPerks();
-
-        // Set up role buttons
-        const roleButtons = document.querySelectorAll(".role-button");
-        const shuffleButton = document.getElementById("shuffle-button");
-
-        roleButtons.forEach(button => {
-            button.addEventListener("click", () => {
-                roleButtons.forEach(btn => btn.classList.remove("active"));
-                button.classList.add("active");
-                this.currentRole = button.dataset.role;
-                // Reset held perks when changing roles
-                this.heldPerks = [false, false, false, false];
-                this.currentPerks = [];
-                // Reset the display
-                this.initializeEmptyPerkCards();
-            });
         });
 
-        // Initialize shuffle button
-        shuffleButton.addEventListener("click", () => this.shufflePerks());
-
-        // Initial setup
-        this.initializeEmptyPerkCards();
+        console.log('Survivor Perks:', survivorPerks);
+        console.log('Killer Perks:', killerPerks);
+        return { survivorPerks, killerPerks };
+    } catch (error) {
+        console.error('Error fetching perks:', error);
+        return { survivorPerks: [], killerPerks: [] };
     }
 }
 
-// Initialize the perk manager when the page loads
-document.addEventListener('DOMContentLoaded', async () => {
-    const perkManager = new PerkManager();
-    try {
-        await perkManager.initialize();
-    } catch (error) {
-        console.error("Failed to initialize perk manager:", error);
-        // Optionally show an error message to the user
-        document.getElementById("perks-container").innerHTML = 
-            "<div class='error'>Failed to load perks. Please try again later.</div>";
-    }
+// Example usage
+fetchPerks().then(perks => {
+    console.log('Fetched perks:', perks);
 });
