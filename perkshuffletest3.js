@@ -113,9 +113,9 @@ function updatePerkDisplay() {
         const detailContent = document.createElement("div");
         detailContent.className = "perk-detail-content";
 
-        const perkOwner = document.createElement("div");
-        perkOwner.className = "perk-detail-owner";
-        perkOwner.textContent = perk.owner;
+        const perkHeader = document.createElement("div");
+        perkHeader.className = "perk-detail-owner";
+        perkHeader.textContent = `${perk.name} / ${perk.owner}`;
 
         const detailDescription = document.createElement("div");
         detailDescription.className = "perk-detail-description";
@@ -123,9 +123,9 @@ function updatePerkDisplay() {
 
         const perkQuote = document.createElement("div");
         perkQuote.className = "perk-detail-quote";
-        perkQuote.textContent = perk.quote ? `"${perk.quote}"` : "";
+        perkQuote.textContent = perk.quote;
 
-        detailContent.appendChild(perkOwner);
+        detailContent.appendChild(perkHeader);
         detailContent.appendChild(detailDescription);
         detailContent.appendChild(perkQuote);
 
