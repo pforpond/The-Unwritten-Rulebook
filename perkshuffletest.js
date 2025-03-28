@@ -1,10 +1,10 @@
-```javascript
 import { DynamoDBClient, QueryCommand } from "@aws-sdk/client-dynamodb";
+import { unmarshall } from "@aws-sdk/util-dynamodb";
 import { fromCognitoIdentityPool } from "@aws-sdk/credential-providers";
 
 // Configure Cognito Identity Pool credentials
 const client = new DynamoDBClient({ 
-    region: "YOUR_AWS_REGION",
+    region: "eu-west-2",
     credentials: fromCognitoIdentityPool({
         clientConfig: { region: "eu-west-2" },
         identityPoolId: "eu-west-2:f8f16cb5-193e-428d-a909-abd6b44bf275"
@@ -28,35 +28,47 @@ class PerkManager {
             // Fetch survivor perks
             const survivorParams = {
                 TableName: GAME_PERKS_TABLE,
+                IndexName: "PerkTypeIndex", // Use a GSI if needed
                 KeyConditionExpression: "PerkType = :type",
                 ExpressionAttributeValues: {
                     ":type": { S: "survivor" }
                 }
             };
             const survivorResult = await client.send(new QueryCommand(survivorParams));
-            this.survivorPerks = survivorResult.Items.map(item => ({
-                name: item.PerkName.S,
-                file: item.Filename.S,
-                folder: item.Folder.S
-            }));
+            
+            // Convert DynamoDB format to usable objects
+            this.survivorPerks = survivorResult.Items.map(item => {
+                const perk = unmarshall(item);
+                return {
+                    name: perk.PerkName,
+                    file: perk.Filename,
+                    folder: perk.Folder
+                };
+            });
 
             // Fetch killer perks
             const killerParams = {
                 TableName: GAME_PERKS_TABLE,
+                IndexName: "PerkTypeIndex", // Use a GSI if needed
                 KeyConditionExpression: "PerkType = :type",
                 ExpressionAttributeValues: {
                     ":type": { S: "killer" }
                 }
             };
             const killerResult = await client.send(new QueryCommand(killerParams));
-            this.killerPerks = killerResult.Items.map(item => ({
-                name: item.PerkName.S,
-                file: item.Filename.S,
-                folder: item.Folder.S
-            }));
+            
+            // Convert DynamoDB format to usable objects
+            this.killerPerks = killerResult.Items.map(item => {
+                const perk = unmarshall(item);
+                return {
+                    name: perk.PerkName,
+                    file: perk.Filename,
+                    folder: perk.Folder
+                };
+            });
+
         } catch (error) {
             console.error("Error fetching perks:", error);
-            // Fallback to local data or show error message
             throw error;
         }
     }
@@ -208,4 +220,3 @@ document.addEventListener('DOMContentLoaded', async () => {
             "<div class='error'>Failed to load perks. Please try again later.</div>";
     }
 });
-```
