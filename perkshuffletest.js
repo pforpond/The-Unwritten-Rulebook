@@ -1,7 +1,4 @@
 // AWS SDK Integration for Perk Data
-import { CognitoIdentityClient } from "@aws-sdk/client-cognito-identity";
-import { DynamoDBClient, ScanCommand } from "@aws-sdk/client-dynamodb";
-import { fromCognitoIdentityPool } from "@aws-sdk/credential-providers";
 
 // Configuration (replace with your actual values)
 const REGION = "eu-west-2"; // Your AWS region
@@ -13,62 +10,51 @@ let survivorPerks = [];
 let killerPerks = [];
 
 // Initialize AWS credentials and clients
-async function initializeAwsClients() {
-    try {
-        const client = new CognitoIdentityClient({ 
-            region: REGION,
-            credentials: fromCognitoIdentityPool({
-                client: new CognitoIdentityClient({ region: REGION }),
-                identityPoolId: IDENTITY_POOL_ID
-            })
-        });
+function initializeAwsClients() {
+    // Configure the credentials provider
+    AWS.config.region = REGION;
+    AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+        IdentityPoolId: IDENTITY_POOL_ID
+    });
 
-        const dynamodbClient = new DynamoDBClient({ 
-            region: REGION,
-            credentials: fromCognitoIdentityPool({
-                client: new CognitoIdentityClient({ region: REGION }),
-                identityPoolId: IDENTITY_POOL_ID
-            })
-        });
-
-        return dynamodbClient;
-    } catch (error) {
-        console.error("Error initializing AWS clients:", error);
-        throw error;
-    }
+    // Create DynamoDB client
+    return new AWS.DynamoDB.DocumentClient();
 }
 
 // Fetch perks from DynamoDB
-async function fetchPerks() {
-    try {
-        const dynamodbClient = await initializeAwsClients();
+function fetchPerks() {
+    return new Promise((resolve, reject) => {
+        try {
+            const dynamodbClient = initializeAwsClients();
 
-        const params = {
-            TableName: TABLE_NAME,
-            // Optional: Add filter expressions if needed
-            // FilterExpression: "attribute_exists(PerkName)"
-        };
+            const params = {
+                TableName: TABLE_NAME
+            };
 
-        const command = new ScanCommand(params);
-        const response = await dynamodbClient.send(command);
+            dynamodbClient.scan(params, (err, data) => {
+                if (err) {
+                    console.error("Error fetching perks:", err);
+                    reject(err);
+                } else {
+                    // Transform DynamoDB items to our perk format
+                    const transformedPerks = data.Items.map(item => ({
+                        name: item.PerkName,
+                        file: item.Filename,
+                        type: item.PerkType
+                    }));
 
-        // Transform DynamoDB items to our perk format
-        const transformedPerks = response.Items.map(item => ({
-            name: item.PerkName.S,
-            file: item.Filename.S,
-            type: item.PerkType.S
-        }));
+                    // Separate perks by type
+                    survivorPerks = transformedPerks.filter(perk => perk.type === "survivor");
+                    killerPerks = transformedPerks.filter(perk => perk.type === "killer");
 
-        // Separate perks by type
-        survivorPerks = transformedPerks.filter(perk => perk.type === "survivor");
-        killerPerks = transformedPerks.filter(perk => perk.type === "killer");
-
-        return transformedPerks;
-    } catch (error) {
-        console.error("Error fetching perks:", error);
-        // Fallback to local perks if network/auth fails
-        return [];
-    }
+                    resolve(transformedPerks);
+                }
+            });
+        } catch (error) {
+            console.error("Error in fetchPerks:", error);
+            reject(error);
+        }
+    });
 }
 
 // Existing perk shuffle logic (mostly unchanged)
@@ -204,9 +190,29 @@ async function initializePage() {
         initializeEmptyPerkCards();
     } catch (error) {
         console.error("Failed to initialize page:", error);
+        // Optionally show an error message to the user
+        const errorMessage = document.createElement("div");
+        errorMessage.textContent = "Failed to load perks. Please try again later.";
+        perksContainer.appendChild(errorMessage);
     }
 }
 
-initializePage();
+// Add AWS SDK script dynamically
+function loadAwsSdk() {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://sdk.amazonaws.com/js/aws-sdk-2.1058.0.min.js';
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
+// Load AWS SDK and then initialize
+loadAwsSdk()
+    .then(initializePage)
+    .catch(error => {
+        console.error("Failed to load AWS SDK:", error);
+    });
 
 shuffleButton.addEventListener("click", shufflePerks);
