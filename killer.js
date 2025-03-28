@@ -1,8 +1,8 @@
 // Configure AWS SDK
 AWS.config.update({
-    region: 'eu-west-2',
+    region: 'eu-west-2', // Your AWS region
     credentials: new AWS.CognitoIdentityCredentials({
-        IdentityPoolId: 'eu-west-2:f8f16cb5-193e-428d-a909-abd6b44bf275'
+        IdentityPoolId: 'eu-west-2:f8f16cb5-193e-428d-a909-abd6b44bf275' // Replace with your actual Identity Pool ID
     })
 });
 
@@ -12,7 +12,7 @@ const dynamodb = new AWS.DynamoDB.DocumentClient();
 // Function to fetch killer rules
 async function fetchKillerRules() {
     const params = {
-        TableName: 'UnwrittenRules',
+        TableName: 'UnwrittenRules', // Your table name
         FilterExpression: 'RuleType = :ruleType',
         ExpressionAttributeValues: {
             ':ruleType': 'killer'
