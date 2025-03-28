@@ -1,6 +1,5 @@
 // AWS SDK Integration for Perk Data
-// Configuration (replace with your actual values)
-const REGION = "eu-west-2"; // Your AWS region
+const REGION = "eu-west-2";
 const IDENTITY_POOL_ID = "eu-west-2:f8f16cb5-193e-428d-a909-abd6b44bf275";
 const TABLE_NAME = "GamePerks";
 
@@ -25,7 +24,6 @@ function initializeAwsClients() {
 function fetchPerks() {
     return new Promise((resolve, reject) => {
         try {
-            console.log("Starting to fetch perks");
             const dynamodbClient = initializeAwsClients();
 
             const params = {
@@ -39,32 +37,21 @@ function fetchPerks() {
                     return;
                 }
 
-                console.log("Raw DynamoDB Scan Result:", JSON.stringify(data, null, 2));
-
-                if (!data.Items || data.Items.length === 0) {
-                    console.warn("No items found in DynamoDB table");
-                    reject(new Error("No perks found"));
-                    return;
-                }
-
                 // Transform DynamoDB items to our perk format
                 const transformedPerks = data.Items.map(item => {
-                    console.log("Transforming item:", JSON.stringify(item, null, 2));
                     return {
                         name: item.PerkName,
                         file: item.Filename,
-                        type: item.PerkType.charAt(0).toUpperCase() + item.PerkType.slice(1).toLowerCase()
+                        type: item.PerkType.charAt(0).toUpperCase() + item.PerkType.slice(1).toLowerCase(),
+                        description: item.PerkDescription || "No description available",
+                        owner: item.PerkOwner || "Unknown", // Add owner
+                        quote: item.PerkQuote || "" // Add quote
                     };
                 });
-
-                console.log("Transformed Perks:", JSON.stringify(transformedPerks, null, 2));
 
                 // Separate perks by type
                 survivorPerks = transformedPerks.filter(perk => perk.type === "Survivor");
                 killerPerks = transformedPerks.filter(perk => perk.type === "Killer");
-
-                console.log("Survivor Perks:", JSON.stringify(survivorPerks, null, 2));
-                console.log("Killer Perks:", JSON.stringify(killerPerks, null, 2));
 
                 resolve(transformedPerks);
             });
@@ -78,6 +65,8 @@ function fetchPerks() {
 function updatePerkDisplay() {
     // Clear the container
     perksContainer.innerHTML = "";
+    const perkDetailsContainer = document.getElementById('perk-details');
+    perkDetailsContainer.innerHTML = "";
     
     currentPerks.forEach((perk, index) => {
         const perkCard = document.createElement("div");
@@ -111,10 +100,42 @@ function updatePerkDisplay() {
         perkCard.appendChild(perkImage);
         perkCard.appendChild(perkName);
         perksContainer.appendChild(perkCard);
+
+        // Create detail card
+        const detailCard = document.createElement("div");
+        detailCard.className = "perk-detail-card";
+
+        const detailImage = document.createElement("img");
+        detailImage.className = "perk-detail-image";
+        detailImage.src = `${perk.type.toLowerCase() === 'survivor' ? 'survivorperks' : 'killerperks'}/${perk.file}`;
+        detailImage.alt = perk.name;
+
+        const detailContent = document.createElement("div");
+        detailContent.className = "perk-detail-content";
+
+        const perkHeader = document.createElement("div");
+        perkHeader.className = "perk-detail-owner";
+        perkHeader.textContent = `${perk.name} - ${perk.owner}`;
+
+        const detailDescription = document.createElement("div");
+        detailDescription.className = "perk-detail-description";
+        detailDescription.textContent = perk.description;
+
+        const perkQuote = document.createElement("div");
+        perkQuote.className = "perk-detail-quote";
+        perkQuote.textContent = perk.quote;
+
+        detailContent.appendChild(perkHeader);
+        detailContent.appendChild(detailDescription);
+        detailContent.appendChild(perkQuote);
+
+        detailCard.appendChild(detailImage);
+        detailCard.appendChild(detailContent);
+        perkDetailsContainer.appendChild(detailCard);
     });
 }
 
-// Existing perk shuffle logic
+// perk shuffle logic
 const perksContainer = document.getElementById("perks-container");
 const roleButtons = document.querySelectorAll(".role-button");
 const shuffleButton = document.getElementById("shuffle-button");
@@ -147,6 +168,8 @@ function shuffleArray(array) {
 
 function initializeEmptyPerkCards() {
     perksContainer.innerHTML = "";
+    const perkDetailsContainer = document.getElementById('perk-details');
+    perkDetailsContainer.innerHTML = "";
     
     for (let i = 0; i < 4; i++) {
         const perkCard = document.createElement("div");
@@ -166,6 +189,12 @@ function initializeEmptyPerkCards() {
         perkCard.appendChild(perkName);
         perksContainer.appendChild(perkCard);
     }
+
+    // Add placeholder for descriptions
+    const descriptionPlaceholder = document.createElement("div");
+    descriptionPlaceholder.className = "description-placeholder";
+    descriptionPlaceholder.textContent = "Shuffle perks to see descriptions";
+    perkDetailsContainer.appendChild(descriptionPlaceholder);
 }
 
 function shufflePerks() {
