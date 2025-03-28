@@ -39,7 +39,7 @@ function fetchPerks() {
                     return;
                 }
 
-                console.log("Raw DynamoDB Scan Result:", data);
+                console.log("Raw DynamoDB Scan Result:", JSON.stringify(data, null, 2));
 
                 if (!data.Items || data.Items.length === 0) {
                     console.warn("No items found in DynamoDB table");
@@ -49,22 +49,22 @@ function fetchPerks() {
 
                 // Transform DynamoDB items to our perk format
                 const transformedPerks = data.Items.map(item => {
-                    console.log("Transforming item:", item);
+                    console.log("Transforming item:", JSON.stringify(item, null, 2));
                     return {
                         name: item.PerkName,
                         file: item.Filename,
-                        type: item.PerkType
+                        type: item.PerkType.charAt(0).toUpperCase() + item.PerkType.slice(1).toLowerCase()
                     };
                 });
 
-                console.log("Transformed Perks:", transformedPerks);
+                console.log("Transformed Perks:", JSON.stringify(transformedPerks, null, 2));
 
                 // Separate perks by type
                 survivorPerks = transformedPerks.filter(perk => perk.type === "Survivor");
                 killerPerks = transformedPerks.filter(perk => perk.type === "Killer");
 
-                console.log("Survivor Perks:", survivorPerks);
-                console.log("Killer Perks:", killerPerks);
+                console.log("Survivor Perks:", JSON.stringify(survivorPerks, null, 2));
+                console.log("Killer Perks:", JSON.stringify(killerPerks, null, 2));
 
                 resolve(transformedPerks);
             });
@@ -72,6 +72,45 @@ function fetchPerks() {
             console.error("Catch block error in fetchPerks:", error);
             reject(error);
         }
+    });
+}
+
+function updatePerkDisplay() {
+    // Clear the container
+    perksContainer.innerHTML = "";
+    
+    currentPerks.forEach((perk, index) => {
+        const perkCard = document.createElement("div");
+        perkCard.className = "perk-card";
+        perkCard.dataset.index = index;
+        
+        if (heldPerks[index]) {
+            perkCard.classList.add("held");
+        }
+        
+        const perkImage = document.createElement("img");
+        perkImage.className = "perk-image";
+        perkImage.src = `${perk.type.toLowerCase() === 'survivor' ? 'survivorperks' : 'killerperks'}/${perk.file}`;
+        perkImage.alt = perk.name;
+        
+        const perkName = document.createElement("div");
+        perkName.className = "perk-name";
+        perkName.textContent = perk.name;
+        
+        // click card to hold perk
+        perkCard.addEventListener("click", () => {
+            heldPerks[index] = !heldPerks[index];
+            
+            if (heldPerks[index]) {
+                perkCard.classList.add("held");
+            } else {
+                perkCard.classList.remove("held");
+            }
+        });
+        
+        perkCard.appendChild(perkImage);
+        perkCard.appendChild(perkName);
+        perksContainer.appendChild(perkCard);
     });
 }
 
@@ -132,12 +171,14 @@ function initializeEmptyPerkCards() {
 function shufflePerks() {
     console.log("Shuffle Perks called");
     console.log("Current Role:", currentRole);
-    console.log("Survivor Perks:", survivorPerks);
-    console.log("Killer Perks:", killerPerks);
+    console.log("Survivor Perks Count:", survivorPerks.length);
+    console.log("Killer Perks Count:", killerPerks.length);
+    console.log("Survivor Perks:", JSON.stringify(survivorPerks, null, 2));
+    console.log("Killer Perks:", JSON.stringify(killerPerks, null, 2));
 
     const perks = currentRole === "Survivor" ? survivorPerks : killerPerks;
     
-    console.log("Perks to shuffle:", perks);
+    console.log("Perks to shuffle:", JSON.stringify(perks, null, 2));
 
     if (perks.length === 0) {
         console.error("No perks available for current role");
