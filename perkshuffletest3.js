@@ -115,7 +115,7 @@ function updatePerkDisplay() {
 
         const perkHeader = document.createElement("div");
         perkHeader.className = "perk-detail-owner";
-        perkHeader.textContent = `${perk.name} / ${perk.owner}`;
+        perkHeader.textContent = `${perk.name} - ${perk.owner}`;
 
         const detailDescription = document.createElement("div");
         detailDescription.className = "perk-detail-description";
