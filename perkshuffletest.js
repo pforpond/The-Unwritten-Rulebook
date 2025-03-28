@@ -1,5 +1,4 @@
 // AWS SDK Integration for Perk Data
-
 // Configuration (replace with your actual values)
 const REGION = "eu-west-2"; // Your AWS region
 const IDENTITY_POOL_ID = "eu-west-2:f8f16cb5-193e-428d-a909-abd6b44bf275";
@@ -11,6 +10,7 @@ let killerPerks = [];
 
 // Initialize AWS credentials and clients
 function initializeAwsClients() {
+    console.log("Initializing AWS Clients");
     // Configure the credentials provider
     AWS.config.region = REGION;
     AWS.config.credentials = new AWS.CognitoIdentityCredentials({
@@ -25,6 +25,7 @@ function initializeAwsClients() {
 function fetchPerks() {
     return new Promise((resolve, reject) => {
         try {
+            console.log("Starting to fetch perks");
             const dynamodbClient = initializeAwsClients();
 
             const params = {
@@ -33,31 +34,48 @@ function fetchPerks() {
 
             dynamodbClient.scan(params, (err, data) => {
                 if (err) {
-                    console.error("Error fetching perks:", err);
+                    console.error("Error fetching perks (AWS Error):", err);
                     reject(err);
-                } else {
-                    // Transform DynamoDB items to our perk format
-                    const transformedPerks = data.Items.map(item => ({
+                    return;
+                }
+
+                console.log("Raw DynamoDB Scan Result:", data);
+
+                if (!data.Items || data.Items.length === 0) {
+                    console.warn("No items found in DynamoDB table");
+                    reject(new Error("No perks found"));
+                    return;
+                }
+
+                // Transform DynamoDB items to our perk format
+                const transformedPerks = data.Items.map(item => {
+                    console.log("Transforming item:", item);
+                    return {
                         name: item.PerkName,
                         file: item.Filename,
                         type: item.PerkType
-                    }));
+                    };
+                });
 
-                    // Separate perks by type
-                    survivorPerks = transformedPerks.filter(perk => perk.type === "survivor");
-                    killerPerks = transformedPerks.filter(perk => perk.type === "killer");
+                console.log("Transformed Perks:", transformedPerks);
 
-                    resolve(transformedPerks);
-                }
+                // Separate perks by type
+                survivorPerks = transformedPerks.filter(perk => perk.type === "survivor");
+                killerPerks = transformedPerks.filter(perk => perk.type === "killer");
+
+                console.log("Survivor Perks:", survivorPerks);
+                console.log("Killer Perks:", killerPerks);
+
+                resolve(transformedPerks);
             });
         } catch (error) {
-            console.error("Error in fetchPerks:", error);
+            console.error("Catch block error in fetchPerks:", error);
             reject(error);
         }
     });
 }
 
-// Existing perk shuffle logic (mostly unchanged)
+// Existing perk shuffle logic
 const perksContainer = document.getElementById("perks-container");
 const roleButtons = document.querySelectorAll(".role-button");
 const shuffleButton = document.getElementById("shuffle-button");
@@ -112,7 +130,21 @@ function initializeEmptyPerkCards() {
 }
 
 function shufflePerks() {
+    console.log("Shuffle Perks called");
+    console.log("Current Role:", currentRole);
+    console.log("Survivor Perks:", survivorPerks);
+    console.log("Killer Perks:", killerPerks);
+
     const perks = currentRole === "survivor" ? survivorPerks : killerPerks;
+    
+    console.log("Perks to shuffle:", perks);
+
+    if (perks.length === 0) {
+        console.error("No perks available for current role");
+        alert("No perks found for the selected role. Please check your DynamoDB data.");
+        return;
+    }
+
     let availablePerks = [...perks];
     
     // If first shuffle, initialize current perks
@@ -141,6 +173,7 @@ function shufflePerks() {
         }
     }
     
+    console.log("Current Perks after shuffle:", currentPerks);
     updatePerkDisplay();
 }
 
@@ -190,9 +223,10 @@ async function initializePage() {
         initializeEmptyPerkCards();
     } catch (error) {
         console.error("Failed to initialize page:", error);
-        // Optionally show an error message to the user
+        // Show an error message to the user
         const errorMessage = document.createElement("div");
         errorMessage.textContent = "Failed to load perks. Please try again later.";
+        errorMessage.style.color = 'red';
         perksContainer.appendChild(errorMessage);
     }
 }
