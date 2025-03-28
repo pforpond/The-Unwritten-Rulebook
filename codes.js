@@ -1,5 +1,5 @@
 // AWS Configuration
-        const REGION = 'eu-west-2'; // e.g., 'us-east-1'
+        const REGION = 'eu-west-2';
         const IDENTITY_POOL_ID = 'eu-west-2:f8f16cb5-193e-428d-a909-abd6b44bf275';
 
         // Configure the AWS SDK
