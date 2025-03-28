@@ -79,7 +79,7 @@ function fetchPerks() {
 const perksContainer = document.getElementById("perks-container");
 const roleButtons = document.querySelectorAll(".role-button");
 const shuffleButton = document.getElementById("shuffle-button");
-let currentRole = "survivor";
+let currentRole = "Survivor";
 let currentPerks = [];
 let heldPerks = [false, false, false, false];
 
@@ -135,7 +135,7 @@ function shufflePerks() {
     console.log("Survivor Perks:", survivorPerks);
     console.log("Killer Perks:", killerPerks);
 
-    const perks = currentRole === "survivor" ? survivorPerks : killerPerks;
+    const perks = currentRole === "Survivor" ? survivorPerks : killerPerks;
     
     console.log("Perks to shuffle:", perks);
 
