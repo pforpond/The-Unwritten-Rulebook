@@ -63,6 +63,8 @@ function fetchPerks() {
 function updatePerkDisplay() {
     // Clear the container
     perksContainer.innerHTML = "";
+    const descriptionsContainer = document.getElementById('perk-descriptions');
+    descriptionsContainer.innerHTML = "";
     
     currentPerks.forEach((perk, index) => {
         const perkCard = document.createElement("div");
@@ -82,11 +84,6 @@ function updatePerkDisplay() {
         perkName.className = "perk-name";
         perkName.textContent = perk.name;
         
-        // Create perk description element
-        const perkDescription = document.createElement("div");
-        perkDescription.className = "perk-description";
-        perkDescription.textContent = perk.description;
-        
         // click card to hold perk
         perkCard.addEventListener("click", () => {
             heldPerks[index] = !heldPerks[index];
@@ -100,8 +97,13 @@ function updatePerkDisplay() {
         
         perkCard.appendChild(perkImage);
         perkCard.appendChild(perkName);
-        perkCard.appendChild(perkDescription);
         perksContainer.appendChild(perkCard);
+
+        // Create description card
+        const descriptionCard = document.createElement("div");
+        descriptionCard.className = "perk-description";
+        descriptionCard.textContent = perk.description;
+        descriptionsContainer.appendChild(descriptionCard);
     });
 }
 
@@ -138,6 +140,8 @@ function shuffleArray(array) {
 
 function initializeEmptyPerkCards() {
     perksContainer.innerHTML = "";
+    const descriptionsContainer = document.getElementById('perk-descriptions');
+    descriptionsContainer.innerHTML = "";
     
     for (let i = 0; i < 4; i++) {
         const perkCard = document.createElement("div");
@@ -157,6 +161,12 @@ function initializeEmptyPerkCards() {
         perkCard.appendChild(perkName);
         perksContainer.appendChild(perkCard);
     }
+
+    // Add placeholder for descriptions
+    const descriptionPlaceholder = document.createElement("div");
+    descriptionPlaceholder.className = "description-placeholder";
+    descriptionPlaceholder.textContent = "Shuffle perks to see descriptions";
+    descriptionsContainer.appendChild(descriptionPlaceholder);
 }
 
 function shufflePerks() {

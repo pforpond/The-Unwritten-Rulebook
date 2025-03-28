@@ -351,23 +351,42 @@
     }
 }
 
-.perk-description {
-    padding: 0.5rem;
-    font-size: 0.9rem;
-    color: #aaa;
-    text-align: center;
-    background-color: rgba(0, 0, 0, 0.6);
-    line-height: 1.4;
+.perk-descriptions {
+    margin-top: 2rem;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
 }
 
-.perk-card {
+.perk-description {
+    background-color: rgba(20, 20, 20, 0.8);
+    border: 2px solid #700f0f;
+    border-radius: 10px;
+    padding: 1rem;
+    color: #d8d8d8;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    min-height: 100px;
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.description-placeholder {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #888;
+    padding: 1rem;
 }
 
 @media (max-width: 768px) {
+    .perk-descriptions {
+        grid-template-columns: 1fr;
+    }
+
     .perk-description {
         font-size: 0.8rem;
-        padding: 0.4rem;
+        min-height: 80px;
     }
 }
