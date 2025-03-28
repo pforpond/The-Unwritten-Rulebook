@@ -1,6 +1,5 @@
 // AWS SDK Integration for Perk Data
-// Configuration (replace with your actual values)
-const REGION = "eu-west-2"; // Your AWS region
+const REGION = "eu-west-2";
 const IDENTITY_POOL_ID = "eu-west-2:f8f16cb5-193e-428d-a909-abd6b44bf275";
 const TABLE_NAME = "GamePerks";
 
@@ -44,11 +43,15 @@ function fetchPerks() {
                         name: item.PerkName,
                         file: item.Filename,
                         type: item.PerkType.charAt(0).toUpperCase() + item.PerkType.slice(1).toLowerCase(),
-                        description: item.PerkDescription || "No description available."
+                        description: item.PerkDescription || "No description available" // Add description
                     };
                 });
 
-                // Rest of the existing code remains the same...
+                // Separate perks by type
+                survivorPerks = transformedPerks.filter(perk => perk.type === "Survivor");
+                killerPerks = transformedPerks.filter(perk => perk.type === "Killer");
+
+                resolve(transformedPerks);
             });
         } catch (error) {
             console.error("Catch block error in fetchPerks:", error);
@@ -60,10 +63,6 @@ function fetchPerks() {
 function updatePerkDisplay() {
     // Clear the container
     perksContainer.innerHTML = "";
-    
-    // Select the description container (we'll add this to HTML)
-    const descriptionContainer = document.getElementById("perk-descriptions");
-    descriptionContainer.innerHTML = ""; // Clear previous descriptions
     
     currentPerks.forEach((perk, index) => {
         const perkCard = document.createElement("div");
@@ -83,7 +82,7 @@ function updatePerkDisplay() {
         perkName.className = "perk-name";
         perkName.textContent = perk.name;
         
-        // New description element for each perk card
+        // Create perk description element
         const perkDescription = document.createElement("div");
         perkDescription.className = "perk-description";
         perkDescription.textContent = perk.description;
@@ -101,20 +100,12 @@ function updatePerkDisplay() {
         
         perkCard.appendChild(perkImage);
         perkCard.appendChild(perkName);
+        perkCard.appendChild(perkDescription);
         perksContainer.appendChild(perkCard);
-        
-        // Add description to description container
-        const descriptionCard = document.createElement("div");
-        descriptionCard.className = "description-card";
-        descriptionCard.innerHTML = `
-            <strong>${perk.name}</strong>
-            <p>${perk.description}</p>
-        `;
-        descriptionContainer.appendChild(descriptionCard);
     });
 }
 
-// Existing perk shuffle logic
+// perk shuffle logic
 const perksContainer = document.getElementById("perks-container");
 const roleButtons = document.querySelectorAll(".role-button");
 const shuffleButton = document.getElementById("shuffle-button");
