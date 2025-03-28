@@ -1,28 +1,40 @@
-import AWS from 'aws-sdk';
+// Load AWS SDK from CDN if running in the browser
+if (typeof window !== "undefined") {
+    const script = document.createElement("script");
+    script.src = "https://sdk.amazonaws.com/js/aws-sdk-2.814.0.min.js";
+    script.onload = () => initializeAWS();
+    document.head.appendChild(script);
+} else {
+    import AWS from 'aws-sdk';
+    initializeAWS();
+}
 
-// AWS Configuration
-AWS.config.update({
-    region: 'eu-west-2', 
-    credentials: new AWS.CognitoIdentityCredentials({
-        IdentityPoolId: 'eu-west-2:f8f16cb5-193e-428d-a909-abd6b44bf275'
-    })
-});
+function initializeAWS() {
+    AWS.config.update({
+        region: 'eu-west-2', // e.g., us-east-1
+        credentials: new AWS.CognitoIdentityCredentials({
+            IdentityPoolId: 'eu-west-2:f8f16cb5-193e-428d-a909-abd6b44bf275'
+        })
+    });
 
-const dynamodb = new AWS.DynamoDB.DocumentClient();
+    document.addEventListener("DOMContentLoaded", async () => {
+        const { survivorPerks, killerPerks } = await fetchPerks();
+        setupUI(survivorPerks, killerPerks);
+    });
+}
 
 async function fetchPerks() {
-    const params = {
-        TableName: 'GamePerks'
-    };
+    const dynamodb = new AWS.DynamoDB.DocumentClient();
+    const params = { TableName: 'GamePerks' };
 
     try {
         const data = await dynamodb.scan(params).promise();
-        const perks = data.Items;
+        console.log("Fetched data from DynamoDB:", data.Items);
 
         const survivorPerks = [];
         const killerPerks = [];
 
-        perks.forEach(perk => {
+        data.Items.forEach(perk => {
             const perkData = {
                 name: perk.PerkName,
                 file: `${perk.Folder}/${perk.Filename}`
@@ -42,9 +54,7 @@ async function fetchPerks() {
     }
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
-    const { survivorPerks, killerPerks } = await fetchPerks();
-    
+function setupUI(survivorPerks, killerPerks) {
     const shuffleButton = document.getElementById("shuffle-button");
     const perksContainer = document.getElementById("perks-container");
     let currentRole = "survivor";
@@ -70,4 +80,4 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         });
     });
-});
+}
