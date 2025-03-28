@@ -218,45 +218,6 @@ function shufflePerks() {
     updatePerkDisplay();
 }
 
-function updatePerkDisplay() {
-    // Clear the container
-    perksContainer.innerHTML = "";
-    
-    currentPerks.forEach((perk, index) => {
-        const perkCard = document.createElement("div");
-        perkCard.className = "perk-card";
-        perkCard.dataset.index = index;
-        
-        if (heldPerks[index]) {
-            perkCard.classList.add("held");
-        }
-        
-        const perkImage = document.createElement("img");
-        perkImage.className = "perk-image";
-        perkImage.src = `${perk.type === 'survivor' ? 'survivorperks' : 'killerperks'}/${perk.file}`;
-        perkImage.alt = perk.name;
-        
-        const perkName = document.createElement("div");
-        perkName.className = "perk-name";
-        perkName.textContent = perk.name;
-        
-        // click card to hold perk
-        perkCard.addEventListener("click", () => {
-            heldPerks[index] = !heldPerks[index];
-            
-            if (heldPerks[index]) {
-                perkCard.classList.add("held");
-            } else {
-                perkCard.classList.remove("held");
-            }
-        });
-        
-        perkCard.appendChild(perkImage);
-        perkCard.appendChild(perkName);
-        perksContainer.appendChild(perkCard);
-    });
-}
-
 // Initialize the page
 async function initializePage() {
     try {
