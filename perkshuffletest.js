@@ -60,8 +60,8 @@ function fetchPerks() {
                 console.log("Transformed Perks:", transformedPerks);
 
                 // Separate perks by type
-                survivorPerks = transformedPerks.filter(perk => perk.type === "survivor");
-                killerPerks = transformedPerks.filter(perk => perk.type === "killer");
+                survivorPerks = transformedPerks.filter(perk => perk.type === "Survivor");
+                killerPerks = transformedPerks.filter(perk => perk.type === "Killer");
 
                 console.log("Survivor Perks:", survivorPerks);
                 console.log("Killer Perks:", killerPerks);
