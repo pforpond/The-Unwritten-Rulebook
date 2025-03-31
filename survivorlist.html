@@ -69,7 +69,7 @@
             width: fit-content;
         }
         
-        .lore-toggle {
+        .toggle-button {
             background-color: #700f0f;
             color: white;
             border: none;
@@ -83,24 +83,24 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: auto;
+            margin-top: 0.8rem;
         }
         
-        .lore-toggle:hover {
+        .toggle-button:hover {
             background-color: #8f1717;
         }
         
-        .lore-toggle::after {
+        .toggle-button::after {
             content: "+";
             font-size: 1.2rem;
             font-weight: bold;
         }
         
-        .lore-toggle.active::after {
+        .toggle-button.active::after {
             content: "-";
         }
         
-        .survivor-lore {
+        .toggle-content {
             padding: 1rem 0;
             display: none;
             font-size: 1rem;
@@ -108,7 +108,7 @@
             line-height: 1.6;
         }
         
-        .survivor-lore.active {
+        .toggle-content.active {
             display: block;
         }
         
@@ -136,6 +136,54 @@
             margin: 2rem auto;
             max-width: 600px;
             color: #fff;
+        }
+        
+        .perk-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .perk-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 0.8rem;
+            border-radius: 5px;
+            border: 1px solid rgba(112, 15, 15, 0.5);
+        }
+        
+        .perk-image {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            border: 1px solid #700f0f;
+            border-radius: 5px;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .perk-details {
+            flex: 1;
+        }
+        
+        .perk-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 0.3rem;
+        }
+        
+        .perk-description {
+            font-size: 0.9rem;
+            color: #d8d8d8;
+        }
+        
+        .no-perks-message {
+            font-style: italic;
+            color: #a8a8a8;
+            text-align: center;
+            padding: 1rem;
         }
         
         @media (max-width: 768px) {
@@ -196,7 +244,8 @@
         // AWS Configuration
         const REGION = 'eu-west-2';
         const IDENTITY_POOL_ID = 'eu-west-2:f8f16cb5-193e-428d-a909-abd6b44bf275';
-        const DYNAMODB_TABLE = 'GameSurvivors';
+        const SURVIVOR_TABLE = 'GameSurvivors';
+        const PERKS_TABLE = 'GamePerks';
         
         // Initialize AWS SDK
         AWS.config.region = REGION;
@@ -205,76 +254,123 @@
         });
         
         // Initialize DynamoDB
-        const dynamodb = new AWS.DynamoDB();
         const docClient = new AWS.DynamoDB.DocumentClient();
         
-        // Fetch survivors from DynamoDB
-        async function fetchSurvivors() {
+        // Data storage
+        let allSurvivors = [];
+        let allPerks = [];
+        
+        // Fetch data from both tables
+        async function fetchData() {
             try {
-                const params = {
-                    TableName: DYNAMODB_TABLE,
-                    // We'll sort by SurvivorNumber on the client side
+                // Show loading message
+                document.getElementById('survivor-container').innerHTML = '<div class="loading">Loading survivors from the fog...</div>';
+                
+                // Fetch survivors
+                const survivorParams = {
+                    TableName: SURVIVOR_TABLE
                 };
                 
-                const result = await docClient.scan(params).promise();
+                const survivorResult = await docClient.scan(survivorParams).promise();
                 
-                if (result.Items && result.Items.length > 0) {
-                    // Sort survivors by SurvivorNumber
-                    const sortedSurvivors = result.Items.sort((a, b) => {
-                        return a.SurvivorNumber - b.SurvivorNumber;
-                    });
-                    
-                    displaySurvivors(sortedSurvivors);
-                } else {
+                if (!survivorResult.Items || survivorResult.Items.length === 0) {
                     showError("No survivors found in the database.");
+                    return;
                 }
+                
+                allSurvivors = survivorResult.Items.sort((a, b) => {
+                    return a.SurvivorNumber - b.SurvivorNumber;
+                });
+                
+                // Fetch perks
+                const perkParams = {
+                    TableName: PERKS_TABLE
+                };
+                
+                const perkResult = await docClient.scan(perkParams).promise();
+                
+                if (perkResult.Items && perkResult.Items.length > 0) {
+                    allPerks = perkResult.Items;
+                }
+                
+                // Display data
+                displaySurvivors();
             } catch (error) {
-                console.error("Error fetching survivors:", error);
-                showError("Failed to fetch survivors from the database. Please try again later.");
+                console.error("Error fetching data:", error);
+                showError("Failed to fetch data from the database. Please try again later.");
             }
         }
         
         // Display survivors on the page
-        function displaySurvivors(survivors) {
+        function displaySurvivors() {
             const container = document.getElementById('survivor-container');
             container.innerHTML = ''; // Clear loading message
             
             const survivorList = document.createElement('div');
             survivorList.className = 'survivor-list';
             
-            survivors.forEach(survivor => {
-                const card = createSurvivorCard(survivor);
+            allSurvivors.forEach(survivor => {
+                // Get perks for this survivor
+                const survivorPerks = allPerks.filter(perk => perk.PerkOwner === survivor.SurvivorName);
+                
+                const card = createSurvivorCard(survivor, survivorPerks);
                 survivorList.appendChild(card);
             });
             
             container.appendChild(survivorList);
             
-            // Add event listeners for lore toggle buttons
-            document.querySelectorAll('.lore-toggle').forEach(button => {
+            // Add event listeners for toggle buttons
+            document.querySelectorAll('.toggle-button').forEach(button => {
                 button.addEventListener('click', function() {
                     this.classList.toggle('active');
-                    const loreElement = this.nextElementSibling;
-                    loreElement.classList.toggle('active');
+                    const contentElement = this.nextElementSibling;
+                    contentElement.classList.toggle('active');
                 });
             });
         }
         
         // Create a survivor card element
-        function createSurvivorCard(survivor) {
+        function createSurvivorCard(survivor, perks) {
             const card = document.createElement('div');
             card.className = 'survivor-card';
             
-            const imagePath = `${survivor.Folder}/${survivor.Filename}`;
+            const survivorImagePath = `${survivor.Folder}/${survivor.Filename}`;
+            
+            // Create perks HTML content
+            let perksContent = '';
+            if (perks && perks.length > 0) {
+                perksContent = `
+                    <div class="perk-list">
+                        ${perks.map(perk => `
+                            <div class="perk-item">
+                                <img src="${perk.Folder}/${perk.Filename}" alt="${perk.PerkName}" class="perk-image">
+                                <div class="perk-details">
+                                    <div class="perk-name">${perk.PerkName}</div>
+                                    <div class="perk-description">${perk.PerkDescription}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                perksContent = '<p class="no-perks-message">This survivor does not have any unique perks in the database.</p>';
+            }
             
             card.innerHTML = `
                 <div class="survivor-image-container">
-                    <img src="${imagePath}" alt="${survivor.SurvivorName}" class="survivor-image">
+                    <img src="${survivorImagePath}" alt="${survivor.SurvivorName}" class="survivor-image">
                 </div>
                 <div class="survivor-info">
                     <h2 class="survivor-name">${survivor.SurvivorName}</h2>
                     <span class="survivor-gender">${survivor.SurvivorGender}</span>
-                    <button class="lore-toggle">Survivor Lore</button>
-                    <div class="survivor-lore">${survivor.SurvivorLore}</div>
+                    
+                    <button class="toggle-button">Survivor Lore</button>
+                    <div class="toggle-content">${survivor.SurvivorLore}</div>
+                    
+                    <button class="toggle-button">Unique Perks</button>
+                    <div class="toggle-content">
+                        ${perksContent}
+                    </div>
                 </div>
             `;
             
@@ -293,7 +389,7 @@
         
         // Wait for the DOM to be fully loaded before initializing
         document.addEventListener('DOMContentLoaded', function() {
-            fetchSurvivors();
+            fetchData();
         });
     </script>
 </body>
