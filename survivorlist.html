@@ -10,19 +10,22 @@
     <style>
         .survivor-list {
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+            flex-direction: column;
             gap: 2rem;
             margin: 2rem 0;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
         }
         
         .survivor-card {
-            width: 300px;
             background-color: rgba(20, 20, 20, 0.8);
             border: 2px solid #700f0f;
             border-radius: 10px;
             overflow: hidden;
             transition: transform 0.3s;
+            display: flex;
+            flex-direction: row;
         }
         
         .survivor-card:hover {
@@ -30,19 +33,26 @@
             box-shadow: 0 5px 15px rgba(112, 15, 15, 0.5);
         }
         
+        .survivor-image-container {
+            flex: 0 0 250px;
+        }
+        
         .survivor-image {
             width: 100%;
-            height: 350px;
+            height: 100%;
             object-fit: cover;
-            border-bottom: 2px solid #700f0f;
+            border-right: 2px solid #700f0f;
         }
         
         .survivor-info {
             padding: 1.5rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
         
         .survivor-name {
-            font-size: 1.8rem;
+            font-size: 2rem;
             margin-bottom: 0.5rem;
             color: #fff;
         }
@@ -50,12 +60,13 @@
         .survivor-gender {
             font-size: 1rem;
             color: #a8a8a8;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             display: inline-block;
             background-color: rgba(112, 15, 15, 0.3);
             padding: 0.3rem 0.8rem;
             border-radius: 50px;
             border: 1px solid #700f0f;
+            width: fit-content;
         }
         
         .lore-toggle {
@@ -72,6 +83,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-top: auto;
         }
         
         .lore-toggle:hover {
@@ -91,7 +103,7 @@
         .survivor-lore {
             padding: 1rem 0;
             display: none;
-            font-size: 0.9rem;
+            font-size: 1rem;
             color: #d8d8d8;
             line-height: 1.6;
         }
@@ -124,6 +136,22 @@
             margin: 2rem auto;
             max-width: 600px;
             color: #fff;
+        }
+        
+        @media (max-width: 768px) {
+            .survivor-card {
+                flex-direction: column;
+            }
+            
+            .survivor-image-container {
+                flex: 0 0 auto;
+                height: 250px;
+            }
+            
+            .survivor-image {
+                border-right: none;
+                border-bottom: 2px solid #700f0f;
+            }
         }
     </style>
 </head>
@@ -239,7 +267,9 @@
             const imagePath = `${survivor.Folder}/${survivor.Filename}`;
             
             card.innerHTML = `
-                <img src="${imagePath}" alt="${survivor.SurvivorName}" class="survivor-image">
+                <div class="survivor-image-container">
+                    <img src="${imagePath}" alt="${survivor.SurvivorName}" class="survivor-image">
+                </div>
                 <div class="survivor-info">
                     <h2 class="survivor-name">${survivor.SurvivorName}</h2>
                     <span class="survivor-gender">${survivor.SurvivorGender}</span>
