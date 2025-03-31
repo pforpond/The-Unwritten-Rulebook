@@ -456,13 +456,13 @@
                     ${badgesHTML}
                     
                     <div class="popup-buttons">
-                        <button class="popup-button" onclick="openLorePopup('${escapeHtml(survivor.SurvivorLore)}', '${escapeHtml(survivor.SurvivorName)}')">
-                            View Lore
-                        </button>
-                        
-                        <button class="popup-button" onclick="openPerksPopup('${escapeHtml(perksHTML)}', '${escapeHtml(survivor.SurvivorName)}')">
-                            View Perks
-                        </button>
+                        <button class="popup-button" onclick="openLorePopup(\`${escapeHtml(survivor.SurvivorLore)}\`, \`${escapeHtml(survivor.SurvivorName)}\`)">
+							View Lore
+						</button>
+
+						<button class="popup-button" onclick="openPerksPopup(\`${escapeHtml(perksHTML)}\`, \`${escapeHtml(survivor.SurvivorName)}\`)">
+							View Perks
+						</button>
                     </div>
                 </div>
             `;
