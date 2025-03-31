@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survivors | The Unwritten Rulebook</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="landing.css">
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1048.0.min.js"></script>
+    <style>
+        .survivor-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .survivor-card {
+            width: 300px;
+            background-color: rgba(20, 20, 20, 0.8);
+            border: 2px solid #700f0f;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+        
+        .survivor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(112, 15, 15, 0.5);
+        }
+        
+        .survivor-image {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+            border-bottom: 2px solid #700f0f;
+        }
+        
+        .survivor-info {
+            padding: 1.5rem;
+        }
+        
+        .survivor-name {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: #fff;
+        }
+        
+        .survivor-gender {
+            font-size: 1rem;
+            color: #a8a8a8;
+            margin-bottom: 1rem;
+            display: inline-block;
+            background-color: rgba(112, 15, 15, 0.3);
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            border: 1px solid #700f0f;
+        }
+        
+        .lore-toggle {
+            background-color: #700f0f;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+            width: 100%;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .lore-toggle:hover {
+            background-color: #8f1717;
+        }
+        
+        .lore-toggle::after {
+            content: "+";
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .lore-toggle.active::after {
+            content: "-";
+        }
+        
+        .survivor-lore {
+            padding: 1rem 0;
+            display: none;
+            font-size: 0.9rem;
+            color: #d8d8d8;
+            line-height: 1.6;
+        }
+        
+        .survivor-lore.active {
+            display: block;
+        }
+        
+        .page-title {
+            text-align: center;
+            margin: 2rem 0;
+            color: #fff;
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px #700f0f;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            font-size: 1.5rem;
+            color: #a8a8a8;
+        }
+        
+        .error-message {
+            text-align: center;
+            padding: 2rem;
+            background-color: rgba(112, 15, 15, 0.3);
+            border: 1px solid #700f0f;
+            border-radius: 5px;
+            margin: 2rem auto;
+            max-width: 600px;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="nav">
+                <a href="rulebook-landing.html" class="logo"><img src="logo.png" alt="The Unwritten Rulebook"></a>
+                <div class="nav-buttons">
+                    <a href="killer.html" class="nav-button" data-title="Killer Rulebook">
+                        <img src="killer.png" alt="Killers">
+                    </a>
+                    <a href="survivor.html" class="nav-button" data-title="Survivor Rulebook">
+                        <img src="survivor.png" alt="Survivors">
+                    </a>
+                    <a href="perkshuffle.html" class="nav-button" data-title="Perk Shuffle">
+                        <img src="perkshuffle.png" alt="Perk Shuffle">
+                    </a>
+                    <a href="codes.html" class="nav-button" data-title="Codes">
+                        <img src="codes.png" alt="Codes">
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+    
+    <section class="container">
+        <h1 class="page-title">Survivors</h1>
+        
+        <div id="survivor-container">
+            <div class="loading">Loading survivors from the fog...</div>
+        </div>
+    </section>
+    
+    <footer class="footer">
+        <div class="container">
+            <p>The Unwritten Rulebook is a fan-made project and is not affiliated with Behaviour Interactive or Dead by Daylight.</p>
+        </div>
+    </footer>
+
+    <script>
+        // AWS Configuration
+        const REGION = 'eu-west-2';
+        const IDENTITY_POOL_ID = 'eu-west-2:f8f16cb5-193e-428d-a909-abd6b44bf275';
+        const DYNAMODB_TABLE = 'GameSurvivors';
+        
+        // Initialize AWS SDK
+        AWS.config.region = REGION;
+        AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+            IdentityPoolId: IDENTITY_POOL_ID
+        });
+        
+        // Initialize DynamoDB
+        const dynamodb = new AWS.DynamoDB();
+        const docClient = new AWS.DynamoDB.DocumentClient();
+        
+        // Fetch survivors from DynamoDB
+        async function fetchSurvivors() {
+            try {
+                const params = {
+                    TableName: DYNAMODB_TABLE,
+                    // We'll sort by SurvivorNumber on the client side
+                };
+                
+                const result = await docClient.scan(params).promise();
+                
+                if (result.Items && result.Items.length > 0) {
+                    // Sort survivors by SurvivorNumber
+                    const sortedSurvivors = result.Items.sort((a, b) => {
+                        return a.SurvivorNumber - b.SurvivorNumber;
+                    });
+                    
+                    displaySurvivors(sortedSurvivors);
+                } else {
+                    showError("No survivors found in the database.");
+                }
+            } catch (error) {
+                console.error("Error fetching survivors:", error);
+                showError("Failed to fetch survivors from the database. Please try again later.");
+            }
+        }
+        
+        // Display survivors on the page
+        function displaySurvivors(survivors) {
+            const container = document.getElementById('survivor-container');
+            container.innerHTML = ''; // Clear loading message
+            
+            const survivorList = document.createElement('div');
+            survivorList.className = 'survivor-list';
+            
+            survivors.forEach(survivor => {
+                const card = createSurvivorCard(survivor);
+                survivorList.appendChild(card);
+            });
+            
+            container.appendChild(survivorList);
+            
+            // Add event listeners for lore toggle buttons
+            document.querySelectorAll('.lore-toggle').forEach(button => {
+                button.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    const loreElement = this.nextElementSibling;
+                    loreElement.classList.toggle('active');
+                });
+            });
+        }
+        
+        // Create a survivor card element
+        function createSurvivorCard(survivor) {
+            const card = document.createElement('div');
+            card.className = 'survivor-card';
+            
+            const imagePath = `${survivor.Folder}/${survivor.Filename}`;
+            
+            card.innerHTML = `
+                <img src="${imagePath}" alt="${survivor.SurvivorName}" class="survivor-image">
+                <div class="survivor-info">
+                    <h2 class="survivor-name">${survivor.SurvivorName}</h2>
+                    <span class="survivor-gender">${survivor.SurvivorGender}</span>
+                    <button class="lore-toggle">Survivor Lore</button>
+                    <div class="survivor-lore">${survivor.SurvivorLore}</div>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        // Show error message
+        function showError(message) {
+            const container = document.getElementById('survivor-container');
+            container.innerHTML = `
+                <div class="error-message">
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+        
+        // Wait for the DOM to be fully loaded before initializing
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchSurvivors();
+        });
+    </script>
+</body>
+</html>
