@@ -251,10 +251,12 @@ function shufflePerks() {
 }
 
 // Initialize the page
-async function initializePage() {
+function initializePage() {
     try {
         await fetchPerks();
         initializeEmptyPerkCards();
+        // Set the current role display to match the default
+        currentRole = "Killer";
     } catch (error) {
         console.error("Failed to initialize page:", error);
         // Show an error message to the user
