@@ -139,13 +139,14 @@ function updatePerkDisplay() {
 const perksContainer = document.getElementById("perks-container");
 const roleButtons = document.querySelectorAll(".toggle-button");
 const shuffleButton = document.getElementById("shuffle-button");
-let currentRole = "Survivor";
+let currentRole = "Killer";
 let currentPerks = [];
 let heldPerks = [false, false, false, false];
 
 // Set up role buttons
 roleButtons.forEach(button => {
     button.addEventListener("click", () => {
+        console.log("Button clicked:", button.dataset.role);
         roleButtons.forEach(btn => btn.classList.remove("active"));
         button.classList.add("active");
         currentRole = button.dataset.role;
@@ -154,6 +155,8 @@ roleButtons.forEach(button => {
         currentPerks = [];
         // Reset the display
         initializeEmptyPerkCards();
+        
+        console.log("Current role changed to:", currentRole);
     });
 });
 
