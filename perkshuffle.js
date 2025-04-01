@@ -139,7 +139,7 @@ function updatePerkDisplay() {
 const perksContainer = document.getElementById("perks-container");
 const roleButtons = document.querySelectorAll(".toggle-button");
 const shuffleButton = document.getElementById("shuffle-button");
-let currentRole = "Killer";
+let currentRole = "Survivor";
 let currentPerks = [];
 let heldPerks = [false, false, false, false];
 
