@@ -265,3 +265,52 @@
     border-left: 3px solid #555;
     padding-left: 10px;
 }
+
+/* Additional CSS for killer cards - add this to your playerlist.css file */
+.killer-stats {
+    margin-bottom: 1.5rem;
+    background-color: rgba(112, 15, 15, 0.2);
+    border-radius: 5px;
+    padding: 0.8rem;
+    border: 1px solid rgba(112, 15, 15, 0.4);
+}
+
+.killer-stat {
+    margin-bottom: 0.5rem;
+    color: #d8d8d8;
+    font-size: 0.95rem;
+}
+
+.killer-stat:last-child {
+    margin-bottom: 0;
+}
+
+.killer-stat span {
+    font-weight: bold;
+    color: #fff;
+    margin-right: 0.3rem;
+}
+
+.birth-name {
+    font-size: 1.2rem;
+    color: #a8a8a8;
+    font-style: italic;
+}
+
+.killer-power-content {
+    color: #d8d8d8;
+    line-height: 1.7;
+}
+
+.killer-power-content h3 {
+    color: #fff;
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+}
+
+.no-power-message {
+    font-style: italic;
+    color: #a8a8a8;
+    text-align: center;
+    padding: 1rem;
+}

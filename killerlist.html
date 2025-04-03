@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Killers | Almanac | Dead by Daylight</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="landing.css">
+    <link rel="stylesheet" href="playerlist.css">
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1048.0.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="nav">
+                <a href="rulebook-landing.html" class="logo"><img src="logo.png" alt="The Unwritten Rulebook"></a>
+                <div class="nav-buttons">
+                    <a href="unwrittenrulebook.html" class="nav-button" data-title="Unwritten Rules">
+                        <img src="rulebook.png" alt="Unwritten Rules">
+                    </a>
+                    <a href="perkshuffle.html" class="nav-button" data-title="Perk Shuffle">
+                        <img src="perkshuffle.png" alt="Perk Shuffle">
+                    </a>
+                    <a href="codes.html" class="nav-button" data-title="Codes">
+                        <img src="codes.png" alt="Codes">
+                    </a>
+                    <a href="almanac-landing.html" class="nav-button" data-title="Almanac">
+                        <img src="almanac.png" alt="Almanac">
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+    
+    <section class="container">
+        <h1 class="page-title">Almanac - Killers</h1>
+        
+        <div id="killer-container">
+            <div class="loading">Summoning killers from the fog...</div>
+        </div>
+    </section>
+    
+    <!-- Popup Templates -->
+    <div class="popup-overlay" id="lorePopup">
+        <div class="popup-content">
+            <button class="popup-close" onclick="closePopup('lorePopup')">&times;</button>
+            <h2 class="popup-title">Killer Lore</h2>
+            <div class="killer-lore" id="loreContent"></div>
+        </div>
+    </div>
+    
+    <div class="popup-overlay" id="perksPopup">
+        <div class="popup-content">
+            <button class="popup-close" onclick="closePopup('perksPopup')">&times;</button>
+            <h2 class="popup-title">Unique Perks</h2>
+            <div id="perksContent"></div>
+        </div>
+    </div>
+    
+    <div class="popup-overlay" id="powerPopup">
+        <div class="popup-content">
+            <button class="popup-close" onclick="closePopup('powerPopup')">&times;</button>
+            <h2 class="popup-title">Killer Power</h2>
+            <div id="powerContent"></div>
+        </div>
+    </div>
+    
+    <footer class="footer">
+        <div class="container">
+            <p>The Unwritten Rulebook is a fan-made project and is not affiliated with Behaviour Interactive or Dead by Daylight.</p>
+        </div>
+    </footer>
+
+    <script>
+        // AWS Configuration
+        const REGION = 'eu-west-2';
+        const IDENTITY_POOL_ID = 'eu-west-2:f8f16cb5-193e-428d-a909-abd6b44bf275';
+        const KILLER_TABLE = 'GameKillers';
+        const PERKS_TABLE = 'GamePerks';
+        
+        // Initialize AWS SDK
+        AWS.config.region = REGION;
+        AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+            IdentityPoolId: IDENTITY_POOL_ID
+        });
+        
+        // Initialize DynamoDB
+        const docClient = new AWS.DynamoDB.DocumentClient();
+        
+        // Data storage
+        let allKillers = [];
+        let allPerks = [];
+        
+        // Fetch data from both tables
+        async function fetchData() {
+            try {
+                // Show loading message
+                document.getElementById('killer-container').innerHTML = '<div class="loading">Summoning killers from the fog...</div>';
+                
+                // Fetch killers
+                const killerParams = {
+                    TableName: KILLER_TABLE
+                };
+                
+                const killerResult = await docClient.scan(killerParams).promise();
+                
+                if (!killerResult.Items || killerResult.Items.length === 0) {
+                    showError("No killers found in the database.");
+                    return;
+                }
+                
+                allKillers = killerResult.Items.sort((a, b) => {
+                    return a.KillerNumber - b.KillerNumber;
+                });
+                
+                // Fetch perks
+                const perkParams = {
+                    TableName: PERKS_TABLE
+                };
+                
+                const perkResult = await docClient.scan(perkParams).promise();
+                
+                if (perkResult.Items && perkResult.Items.length > 0) {
+                    allPerks = perkResult.Items;
+                }
+                
+                // Display data
+                displayKillers();
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                showError("Failed to fetch data from the database. Please try again later.");
+            }
+        }
+        
+        // Display killers on the page
+        function displayKillers() {
+            const container = document.getElementById('killer-container');
+            container.innerHTML = ''; // Clear loading message
+            
+            const killerList = document.createElement('div');
+            killerList.className = 'survivor-list';
+            
+            allKillers.forEach(killer => {
+                // Get perks for this killer
+                const killerPerks = allPerks.filter(perk => perk.PerkOwner === killer.KillerName);
+                
+                const card = createKillerCard(killer, killerPerks);
+                killerList.appendChild(card);
+            });
+            
+            container.appendChild(killerList);
+        }
+        
+        // Create a killer card element
+        function createKillerCard(killer, perks) {
+            const card = document.createElement('div');
+            card.className = 'survivor-card';
+            
+            const killerImagePath = `${killer.Folder}/${killer.Filename}`;
+            
+            // Create badges HTML
+            let badgesHTML = '<div class="survivor-badges">';
+            
+            if (killer.KillerGender) {
+                badgesHTML += `<span class="survivor-badge">${killer.KillerGender}</span>`;
+            }
+            
+            if (killer.KillerOrigin) {
+                badgesHTML += `<span class="survivor-badge">${killer.KillerOrigin}</span>`;
+            }
+            
+            if (killer.KillerRealm) {
+                badgesHTML += `<span class="survivor-badge">Realm: ${killer.KillerRealm}</span>`;
+            }
+            
+            badgesHTML += '</div>';
+            
+            // Create killer stats
+            let statsHTML = '<div class="killer-stats">';
+            
+            if (killer.KillerSpeed) {
+                statsHTML += `<div class="killer-stat"><span>Speed:</span> ${killer.KillerSpeed}</div>`;
+            }
+            
+            if (killer.KillerRadius) {
+                statsHTML += `<div class="killer-stat"><span>Terror Radius:</span> ${killer.KillerRadius}</div>`;
+            }
+            
+            if (killer.KillerHeight) {
+                statsHTML += `<div class="killer-stat"><span>Height:</span> ${killer.KillerHeight}</div>`;
+            }
+            
+            if (killer.KillerWeapon) {
+                statsHTML += `<div class="killer-stat"><span>Weapon:</span> ${killer.KillerWeapon}</div>`;
+            }
+            
+            statsHTML += '</div>';
+            
+            // Store perks HTML for popup
+            let perksHTML = '';
+            if (perks && perks.length > 0) {
+                perksHTML = `
+                    <div class="perk-list">
+                        ${perks.map(perk => `
+                            <div class="perk-item">
+                                <img src="${perk.Folder}/${perk.Filename}" alt="${perk.PerkName}" class="perk-image">
+                                <div class="perk-details">
+                                    <div class="perk-name">${perk.PerkName}</div>
+                                    <div class="perk-description">${perk.PerkDescription}</div>
+                                    ${perk.PerkQuote ? `<div class="perk-quote">${perk.PerkQuote}</div>` : ''}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                perksHTML = '<p class="no-perks-message">This killer does not have any unique perks in the database.</p>';
+            }
+            
+            // Store power HTML for popup
+            let powerHTML = '';
+            if (killer.KillerPower) {
+                powerHTML = `
+                    <div class="killer-power-content">
+                        <h3>${killer.KillerName}'s Power</h3>
+                        <p>${killer.KillerPower}</p>
+                    </div>
+                `;
+            } else {
+                powerHTML = '<p class="no-power-message">No power information available for this killer.</p>';
+            }
+            
+            // Create killer name display, including birth name if available
+            let nameDisplay = killer.KillerName;
+            if (killer.KillerBirthName) {
+                nameDisplay = `${killer.KillerName} <span class="birth-name">(${killer.KillerBirthName})</span>`;
+            }
+            
+            card.innerHTML = `
+                <div class="survivor-image-container">
+                    <img src="${killerImagePath}" alt="${killer.KillerName}" class="survivor-image">
+                </div>
+                <div class="survivor-info">
+                    <h2 class="survivor-name">${nameDisplay}</h2>
+                    ${badgesHTML}
+                    ${statsHTML}
+                    
+                    <div class="popup-buttons">
+                        <button class="popup-button" onclick="openLorePopup(\`${escapeHtml(killer.KillerLore)}\`, \`${escapeHtml(killer.KillerName)}\`)">
+                            View Lore
+                        </button>
+                        <button class="popup-button" onclick="openPowerPopup(\`${escapeHtml(powerHTML)}\`, \`${escapeHtml(killer.KillerName)}\`)">
+                            View Power
+                        </button>
+                        <button class="popup-button" onclick="openPerksPopup(\`${escapeHtml(perksHTML)}\`, \`${escapeHtml(killer.KillerName)}\`)">
+                            View Perks
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        // Open lore popup
+        function openLorePopup(lore, killerName) {
+            document.getElementById('lorePopup').classList.add('active');
+            document.getElementById('loreContent').innerHTML = lore;
+            document.querySelector('#lorePopup .popup-title').textContent = killerName + ' - Lore';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Open perks popup
+        function openPerksPopup(perksHTML, killerName) {
+            document.getElementById('perksPopup').classList.add('active');
+            document.getElementById('perksContent').innerHTML = perksHTML;
+            document.querySelector('#perksPopup .popup-title').textContent = killerName + ' - Unique Perks';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Open power popup
+        function openPowerPopup(powerHTML, killerName) {
+            document.getElementById('powerPopup').classList.add('active');
+            document.getElementById('powerContent').innerHTML = powerHTML;
+            document.querySelector('#powerPopup .popup-title').textContent = killerName + ' - Power';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Close popup
+        function closePopup(popupId) {
+            document.getElementById(popupId).classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Show error message
+        function showError(message) {
+            const container = document.getElementById('killer-container');
+            container.innerHTML = `
+                <div class="error-message">
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+        
+        // Escape HTML for security
+        function escapeHtml(html) {
+            const div = document.createElement('div');
+            div.textContent = html;
+            return div.innerHTML.replace(/"/g, '&quot;');
+        }
+        
+        // Close popup when clicking outside content
+        document.querySelectorAll('.popup-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        });
+        
+        // Close popup with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.popup-overlay.active').forEach(popup => {
+                    popup.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                });
+            }
+        });
+        
+        // Wait for the DOM to be fully loaded before initializing
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchData();
+        });
+    </script>
+</body>
+</html>
