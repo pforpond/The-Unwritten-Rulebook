@@ -217,18 +217,11 @@
                 perksHTML = '<p class="no-perks-message">This killer does not have any unique perks in the database.</p>';
             }
             
-            // Store power HTML for popup
-            let powerHTML = '';
-            if (killer.KillerPower) {
-                powerHTML = `
-                    <div class="killer-power-content">
-                        <h3>${killer.KillerName}'s Power</h3>
-                        <p>${killer.KillerPower}</p>
-                    </div>
-                `;
-            } else {
-                powerHTML = '<p class="no-power-message">No power information available for this killer.</p>';
-            }
+            // Create power data for the popup
+            let powerData = {
+                powerName: killer.KillerPower || "Unknown Power",
+                powerDescription: killer.KillerPowerDescription || ""
+            };
             
             // Create killer name display, including birth name if available
             let nameDisplay = killer.KillerName;
@@ -249,7 +242,7 @@
                         <button class="popup-button" onclick="openLorePopup(\`${escapeHtml(killer.KillerLore)}\`, \`${escapeHtml(killer.KillerName)}\`)">
                             View Lore
                         </button>
-                        <button class="popup-button" onclick="openPowerPopup(\`${escapeHtml(powerHTML)}\`, \`${escapeHtml(killer.KillerName)}\`)">
+                        <button class="popup-button" onclick="openPowerPopup(${JSON.stringify(powerData).replace(/"/g, '&quot;')}, \`${escapeHtml(killer.KillerName)}\`)">
                             View Power
                         </button>
                         <button class="popup-button" onclick="openPerksPopup(\`${escapeHtml(perksHTML)}\`, \`${escapeHtml(killer.KillerName)}\`)">
@@ -262,25 +255,20 @@
             return card;
         }
         
-        // Open lore popup
-        function openLorePopup(lore, killerName) {
-            document.getElementById('lorePopup').classList.add('active');
-            document.getElementById('loreContent').innerHTML = lore;
-            document.querySelector('#lorePopup .popup-title').textContent = killerName + ' - Lore';
-            document.body.style.overflow = 'hidden';
-        }
-        
-        // Open perks popup
-        function openPerksPopup(perksHTML, killerName) {
-            document.getElementById('perksPopup').classList.add('active');
-            document.getElementById('perksContent').innerHTML = perksHTML;
-            document.querySelector('#perksPopup .popup-title').textContent = killerName + ' - Unique Perks';
-            document.body.style.overflow = 'hidden';
-        }
-        
-        // Open power popup
-        function openPowerPopup(powerHTML, killerName) {
+        // Open power popup - updated function
+        function openPowerPopup(powerData, killerName) {
             document.getElementById('powerPopup').classList.add('active');
+            
+            // Create the power HTML with both name and description
+            let powerHTML = `
+                <div class="killer-power-content">
+                    <h3>${killerName}'s Power: ${powerData.powerName}</h3>
+                    ${powerData.powerDescription ? 
+                        `<div class="power-description">${powerData.powerDescription}</div>` : 
+                        '<p class="no-power-message">No detailed power description available.</p>'}
+                </div>
+            `;
+            
             document.getElementById('powerContent').innerHTML = powerHTML;
             document.querySelector('#powerPopup .popup-title').textContent = killerName + ' - Power';
             document.body.style.overflow = 'hidden';

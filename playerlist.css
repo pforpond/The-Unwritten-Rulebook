@@ -266,7 +266,6 @@
     padding-left: 10px;
 }
 
-/* Additional CSS for killer cards - add this to your playerlist.css file */
 .killer-stats {
     margin-bottom: 1.5rem;
     background-color: rgba(112, 15, 15, 0.2);
@@ -306,6 +305,13 @@
     color: #fff;
     margin-bottom: 1rem;
     font-size: 1.3rem;
+    border-bottom: 1px solid rgba(112, 15, 15, 0.5);
+    padding-bottom: 0.5rem;
+}
+
+.power-description {
+    margin-top: 1rem;
+    white-space: pre-line;
 }
 
 .no-power-message {
