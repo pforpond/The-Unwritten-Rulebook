@@ -152,127 +152,130 @@
         }
         
         // Create a killer card element
-        function createKillerCard(killer, perks) {
-            const card = document.createElement('div');
-            card.className = 'survivor-card';
-            
-            const killerImagePath = `${killer.Folder}/${killer.Filename}`;
-            
-            // Create badges HTML
-            let badgesHTML = '<div class="survivor-badges">';
-            
-            if (killer.KillerGender) {
-                badgesHTML += `<span class="survivor-badge">${killer.KillerGender}</span>`;
-            }
-            
-            if (killer.KillerOrigin) {
-                badgesHTML += `<span class="survivor-badge">${killer.KillerOrigin}</span>`;
-            }
-            
-            if (killer.KillerRealm) {
-                badgesHTML += `<span class="survivor-badge">Realm: ${killer.KillerRealm}</span>`;
-            }
-            
-            badgesHTML += '</div>';
-            
-            // Create killer stats
-            let statsHTML = '<div class="killer-stats">';
-            
-            if (killer.KillerSpeed) {
-                statsHTML += `<div class="killer-stat"><span>Speed:</span> ${killer.KillerSpeed}</div>`;
-            }
-            
-            if (killer.KillerRadius) {
-                statsHTML += `<div class="killer-stat"><span>Terror Radius:</span> ${killer.KillerRadius}</div>`;
-            }
-            
-            if (killer.KillerHeight) {
-                statsHTML += `<div class="killer-stat"><span>Height:</span> ${killer.KillerHeight}</div>`;
-            }
-            
-            if (killer.KillerWeapon) {
-                statsHTML += `<div class="killer-stat"><span>Weapon:</span> ${killer.KillerWeapon}</div>`;
-            }
-            
-            statsHTML += '</div>';
-            
-            // Store perks HTML for popup
-            let perksHTML = '';
-            if (perks && perks.length > 0) {
-                perksHTML = `
-                    <div class="perk-list">
-                        ${perks.map(perk => `
-                            <div class="perk-item">
-                                <img src="${perk.Folder}/${perk.Filename}" alt="${perk.PerkName}" class="perk-image">
-                                <div class="perk-details">
-                                    <div class="perk-name">${perk.PerkName}</div>
-                                    <div class="perk-description">${perk.PerkDescription}</div>
-                                    ${perk.PerkQuote ? `<div class="perk-quote">${perk.PerkQuote}</div>` : ''}
-                                </div>
-                            </div>
-                        `).join('')}
+function createKillerCard(killer, perks) {
+    const card = document.createElement('div');
+    card.className = 'survivor-card';
+    
+    const killerImagePath = `${killer.Folder}/${killer.Filename}`;
+    
+    // Create badges HTML
+    let badgesHTML = '<div class="survivor-badges">';
+    
+    if (killer.KillerGender) {
+        badgesHTML += `<span class="survivor-badge">${killer.KillerGender}</span>`;
+    }
+    
+    if (killer.KillerOrigin) {
+        badgesHTML += `<span class="survivor-badge">${killer.KillerOrigin}</span>`;
+    }
+    
+    if (killer.KillerRealm) {
+        badgesHTML += `<span class="survivor-badge">Realm: ${killer.KillerRealm}</span>`;
+    }
+    
+    badgesHTML += '</div>';
+    
+    // Create killer stats
+    let statsHTML = '<div class="killer-stats">';
+    
+    if (killer.KillerSpeed) {
+        statsHTML += `<div class="killer-stat"><span>Speed:</span> ${killer.KillerSpeed}</div>`;
+    }
+    
+    if (killer.KillerRadius) {
+        statsHTML += `<div class="killer-stat"><span>Terror Radius:</span> ${killer.KillerRadius}</div>`;
+    }
+    
+    if (killer.KillerHeight) {
+        statsHTML += `<div class="killer-stat"><span>Height:</span> ${killer.KillerHeight}</div>`;
+    }
+    
+    if (killer.KillerWeapon) {
+        statsHTML += `<div class="killer-stat"><span>Weapon:</span> ${killer.KillerWeapon}</div>`;
+    }
+    
+    statsHTML += '</div>';
+    
+    // Store perks HTML for popup
+    let perksHTML = '';
+    if (perks && perks.length > 0) {
+        perksHTML = `
+            <div class="perk-list">
+                ${perks.map(perk => `
+                    <div class="perk-item">
+                        <img src="${perk.Folder}/${perk.Filename}" alt="${perk.PerkName}" class="perk-image">
+                        <div class="perk-details">
+                            <div class="perk-name">${perk.PerkName}</div>
+                            <div class="perk-description">${perk.PerkDescription}</div>
+                            ${perk.PerkQuote ? `<div class="perk-quote">${perk.PerkQuote}</div>` : ''}
+                        </div>
                     </div>
-                `;
-            } else {
-                perksHTML = '<p class="no-perks-message">This killer does not have any unique perks in the database.</p>';
-            }
+                `).join('')}
+            </div>
+        `;
+    } else {
+        perksHTML = '<p class="no-perks-message">This killer does not have any unique perks in the database.</p>';
+    }
+    
+    // Create power data for the popup, now including the power quote
+    let powerData = {
+        powerName: killer.KillerPower || "Unknown Power",
+        powerDescription: killer.KillerPowerDescription || "",
+        powerQuote: killer.KillerPowerQuote || ""
+    };
+    
+    // Create killer name display, including birth name if available
+    let nameDisplay = killer.KillerName;
+    if (killer.KillerBirthName) {
+        nameDisplay = `${killer.KillerName} <span class="birth-name">(${killer.KillerBirthName})</span>`;
+    }
+    
+    card.innerHTML = `
+        <div class="survivor-image-container">
+            <img src="${killerImagePath}" alt="${killer.KillerName}" class="survivor-image">
+        </div>
+        <div class="survivor-info">
+            <h2 class="survivor-name">${nameDisplay}</h2>
+            ${badgesHTML}
+            ${statsHTML}
             
-            // Create power data for the popup
-            let powerData = {
-                powerName: killer.KillerPower || "Unknown Power",
-                powerDescription: killer.KillerPowerDescription || ""
-            };
-            
-            // Create killer name display, including birth name if available
-            let nameDisplay = killer.KillerName;
-            if (killer.KillerBirthName) {
-                nameDisplay = `${killer.KillerName} <span class="birth-name">(${killer.KillerBirthName})</span>`;
-            }
-            
-            card.innerHTML = `
-                <div class="survivor-image-container">
-                    <img src="${killerImagePath}" alt="${killer.KillerName}" class="survivor-image">
-                </div>
-                <div class="survivor-info">
-                    <h2 class="survivor-name">${nameDisplay}</h2>
-                    ${badgesHTML}
-                    ${statsHTML}
-                    
-                    <div class="popup-buttons">
-                        <button class="popup-button" onclick="openLorePopup(\`${escapeHtml(killer.KillerLore)}\`, \`${escapeHtml(killer.KillerName)}\`)">
-                            View Lore
-                        </button>
-                        <button class="popup-button" onclick="openPowerPopup(${JSON.stringify(powerData).replace(/"/g, '&quot;')}, \`${escapeHtml(killer.KillerName)}\`)">
-                            View Power
-                        </button>
-                        <button class="popup-button" onclick="openPerksPopup(\`${escapeHtml(perksHTML)}\`, \`${escapeHtml(killer.KillerName)}\`)">
-                            View Perks
-                        </button>
-                    </div>
-                </div>
-            `;
-            
-            return card;
-        }
-        
-        // Open power popup - updated function
-        function openPowerPopup(powerData, killerName) {
-            document.getElementById('powerPopup').classList.add('active');
-            
-            // Create the power HTML with both name and description
-            let powerHTML = `
-                <div class="killer-power-content">
-                    <h3>${powerData.powerName}</h3>
-                    ${powerData.powerDescription ? 
-                        `<div class="power-description">${powerData.powerDescription}</div>` : 
-                        '<p class="no-power-message">No detailed power description available.</p>'}
-                </div>
-            `;
-            
-            document.getElementById('powerContent').innerHTML = powerHTML;
-            document.querySelector('#powerPopup .popup-title').textContent = killerName + ' - Power';
-            document.body.style.overflow = 'hidden';
-        }
+            <div class="popup-buttons">
+                <button class="popup-button" onclick="openLorePopup(\`${escapeHtml(killer.KillerLore)}\`, \`${escapeHtml(killer.KillerName)}\`)">
+                    View Lore
+                </button>
+                <button class="popup-button" onclick="openPowerPopup(${JSON.stringify(powerData).replace(/"/g, '&quot;')}, \`${escapeHtml(killer.KillerName)}\`)">
+                    View Power
+                </button>
+                <button class="popup-button" onclick="openPerksPopup(\`${escapeHtml(perksHTML)}\`, \`${escapeHtml(killer.KillerName)}\`)">
+                    View Perks
+                </button>
+            </div>
+        </div>
+    `;
+    
+    return card;
+}
+
+// Open power popup - updated to display power quote
+function openPowerPopup(powerData, killerName) {
+    document.getElementById('powerPopup').classList.add('active');
+    
+    // Create the power HTML with name, description and quote
+    let powerHTML = `
+        <div class="killer-power-content">
+            <h3>${powerData.powerName}</h3>
+            ${powerData.powerDescription ? 
+                `<div class="power-description">${powerData.powerDescription}</div>` : 
+                '<p class="no-power-message">No detailed power description available.</p>'}
+            ${powerData.powerQuote ? 
+                `<div class="power-quote">${powerData.powerQuote}</div>`}
+        </div>
+    `;
+    
+    document.getElementById('powerContent').innerHTML = powerHTML;
+    document.querySelector('#powerPopup .popup-title').textContent = killerName + ' - Power';
+    document.body.style.overflow = 'hidden';
+}
         
         // Close popup
         function closePopup(popupId) {
