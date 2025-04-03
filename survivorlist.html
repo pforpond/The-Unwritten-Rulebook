@@ -169,24 +169,26 @@
             badgesHTML += '</div>';
             
             // Store perks HTML for popup
-            let perksHTML = '';
-            if (perks && perks.length > 0) {
-                perksHTML = `
-                    <div class="perk-list">
-                        ${perks.map(perk => `
-                            <div class="perk-item">
-                                <img src="${perk.Folder}/${perk.Filename}" alt="${perk.PerkName}" class="perk-image">
-                                <div class="perk-details">
-                                    <div class="perk-name">${perk.PerkName}</div>
-                                    <div class="perk-description">${perk.PerkDescription}</div>
-                                </div>
-                            </div>
-                        `).join('')}
+           // Update this section in the createSurvivorCard function
+let perksHTML = '';
+if (perks && perks.length > 0) {
+    perksHTML = `
+        <div class="perk-list">
+            ${perks.map(perk => `
+                <div class="perk-item">
+                    <img src="${perk.Folder}/${perk.Filename}" alt="${perk.PerkName}" class="perk-image">
+                    <div class="perk-details">
+                        <div class="perk-name">${perk.PerkName}</div>
+                        <div class="perk-description">${perk.PerkDescription}</div>
+                        ${perk.PerkQuote ? `<div class="perk-quote">"${perk.PerkQuote}"</div>` : ''}
                     </div>
-                `;
-            } else {
-                perksHTML = '<p class="no-perks-message">This survivor does not have any unique perks in the database.</p>';
-            }
+                </div>
+            `).join('')}
+        </div>
+    `;
+} else {
+    perksHTML = '<p class="no-perks-message">This survivor does not have any unique perks in the database.</p>';
+}
             
             card.innerHTML = `
                 <div class="survivor-image-container">

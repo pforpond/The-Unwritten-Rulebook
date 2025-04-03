@@ -257,3 +257,11 @@
                 flex-direction: column;
             }
         }
+.perk-quote {
+    font-style: italic;
+    margin-top: 8px;
+    color: #a7a7a7;
+    font-size: 0.9em;
+    border-left: 3px solid #555;
+    padding-left: 10px;
+}
