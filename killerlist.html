@@ -324,6 +324,22 @@ function openPowerPopup(powerData, killerName) {
         document.addEventListener('DOMContentLoaded', function() {
             fetchData();
         });
+        
+        // Open lore popup
+function openLorePopup(lore, killerName) {
+    document.getElementById('lorePopup').classList.add('active');
+    document.getElementById('loreContent').innerHTML = lore;
+    document.querySelector('#lorePopup .popup-title').textContent = killerName + ' - Lore';
+    document.body.style.overflow = 'hidden';
+}
+
+// Open perks popup
+function openPerksPopup(perksHTML, killerName) {
+    document.getElementById('perksPopup').classList.add('active');
+    document.getElementById('perksContent').innerHTML = perksHTML;
+    document.querySelector('#perksPopup .popup-title').textContent = killerName + ' - Unique Perks';
+    document.body.style.overflow = 'hidden';
+}
     </script>
 </body>
 </html>
