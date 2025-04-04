@@ -385,3 +385,237 @@
         .back-to-top:hover {
             background-color: #700f0f;
         }
+
+.filter-controls {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .filter-button {
+            padding: 8px 16px;
+            background-color: #2a2a2a;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-button.active {
+            background-color: #cc2a2a;
+            border-color: #ff3333;
+        }
+        
+        .filter-button:hover {
+            background-color: #444;
+        }
+        
+        .search-container {
+            display: flex;
+            margin-bottom: 20px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .search-input {
+            flex-grow: 1;
+            padding: 8px 12px;
+            border: 1px solid #444;
+            background-color: #222;
+            color: #fff;
+            border-radius: 4px 0 0 4px;
+        }
+        
+        .search-button {
+            padding: 8px 16px;
+            background-color: #cc2a2a;
+            color: #fff;
+            border: 1px solid #cc2a2a;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+        
+        .perk-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .perk-card {
+            background-color: rgba(0, 0, 0, 0.7);
+            border: 1px solid #444;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .perk-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.2);
+        }
+        
+        .perk-image-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            background-color: rgba(0, 0, 0, 0.5);
+            min-width: 120px;
+        }
+        
+        .perk-image {
+            max-height: 80px;
+            max-width: 80px;
+        }
+        
+        .perk-info {
+            padding: 15px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .perk-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ff3333;
+            margin-bottom: 5px;
+        }
+        
+        .perk-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .perk-badge {
+            background-color: #444;
+            color: #ddd;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .perk-badge.killer-badge {
+            background-color: #7a1f1f;
+        }
+        
+        .perk-badge.survivor-badge {
+            background-color: #1f4e7a;
+        }
+        
+        .perk-owner {
+            color: #aaa;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .perk-description {
+            color: #ddd;
+            font-size: 14px;
+            line-height: 1.4;
+            margin-top: auto;
+        }
+        
+        .perk-quote {
+            color: #888;
+            font-style: italic;
+            font-size: 12px;
+            margin-top: 10px;
+            border-left: 2px solid #444;
+            padding-left: 10px;
+        }
+        
+        .popup-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        .popup-button {
+            padding: 6px 12px;
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .popup-button:hover {
+            background-color: #cc2a2a;
+            border-color: #ff3333;
+        }
+        
+        .no-results {
+            text-align: center;
+            color: #ddd;
+            padding: 20px;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            gap: 5px;
+        }
+        
+        .pagination-button {
+            padding: 8px 12px;
+            background-color: #2a2a2a;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .pagination-button.active {
+            background-color: #cc2a2a;
+            border-color: #ff3333;
+        }
+        
+        .pagination-button:hover:not(.active) {
+            background-color: #444;
+        }
+        
+        .pagination-button.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Responsive adjustment */
+        @media (max-width: 768px) {
+            .perk-card {
+                flex-direction: column;
+            }
+            
+            .perk-image-container {
+                height: auto;
+                padding: 20px;
+            }
+            
+            .perk-name {
+                text-align: center;
+            }
+            
+            .perk-badges {
+                justify-content: center;
+            }
+            
+            .perk-owner {
+                text-align: center;
+            }
+            
+            .popup-buttons {
+                justify-content: center;
+            }
+        }

@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perks | Almanac | Dead by Daylight</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="landing.css">
+    <link rel="stylesheet" href="playerlist.css">
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1048.0.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="nav">
+                <a href="rulebook-landing.html" class="logo"><img src="logo.png" alt="The Unwritten Rulebook"></a>
+                <div class="nav-buttons">
+                    <a href="unwrittenrulebook.html" class="nav-button" data-title="Unwritten Rules">
+                        <img src="rulebook.png" alt="Unwritten Rules">
+                    </a>
+                    <a href="perkshuffle.html" class="nav-button" data-title="Perk Shuffle">
+                        <img src="perkshuffle.png" alt="Perk Shuffle">
+                    </a>
+                    <a href="codes.html" class="nav-button" data-title="Codes">
+                        <img src="codes.png" alt="Codes">
+                    </a>
+                    <a href="almanac-landing.html" class="nav-button" data-title="Almanac">
+                        <img src="almanac.png" alt="Almanac">
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+    
+    <section class="container">
+        <div class="hero-buttons">
+            <a href="killerlist.html" class="hero-button" data-title="Killer Almanac">
+                <img src="killer.png" alt="Killer Almanac">
+            </a>
+            <a href="survivorlist.html" class="hero-button" data-title="Survivor Almanac">
+                <img src="survivor.png" alt="Survivor Almanac">
+            </a>
+            <a href="perklist.html" class="hero-button" data-title="Perk Almanac">
+                <img src="perkalmanac.png" alt="Perk Almanac">
+            </a>
+        </div>
+        <h1 class="page-title">Almanac - Perks</h1>
+        
+        <div class="filter-controls">
+            <button class="filter-button active" data-filter="all">All Perks</button>
+            <button class="filter-button" data-filter="Survivor">Survivor Perks</button>
+            <button class="filter-button" data-filter="Killer">Killer Perks</button>
+        </div>
+        
+        <div class="search-container">
+            <input type="text" class="search-input" id="searchInput" placeholder="Search perks...">
+            <button class="search-button" id="searchButton">Search</button>
+        </div>
+        
+        <div id="perk-container">
+            <div class="loading">Summoning perks from the Entity's realm...</div>
+        </div>
+        
+        <div class="pagination" id="pagination"></div>
+    </section>
+    
+    <!-- Popup Templates -->
+    <div class="popup-overlay" id="perkDetailsPopup">
+        <div class="popup-content">
+            <button class="popup-close" onclick="closePopup('perkDetailsPopup')">&times;</button>
+            <h2 class="popup-title">Perk Details</h2>
+            <div id="perkDetailsContent"></div>
+        </div>
+    </div>
+    
+    <footer class="footer">
+        <div class="container">
+            <p>The Unwritten Rulebook is a fan-made project and is not affiliated with Behaviour Interactive or Dead by Daylight.</p>
+        </div>
+    </footer>
+
+    <script>
+        // AWS Configuration
+        const REGION = 'eu-west-2';
+        const IDENTITY_POOL_ID = 'eu-west-2:f8f16cb5-193e-428d-a909-abd6b44bf275';
+        const PERKS_TABLE = 'GamePerks';
+        
+        // Initialize AWS SDK
+        AWS.config.region = REGION;
+        AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+            IdentityPoolId: IDENTITY_POOL_ID
+        });
+        
+        // Initialize DynamoDB
+        const docClient = new AWS.DynamoDB.DocumentClient();
+        
+        // Data and State
+        let allPerks = [];
+        let filteredPerks = [];
+        let currentFilter = 'all';
+        let currentPage = 1;
+        const perksPerPage = 10; // Fewer perks per page for vertical layout
+        let searchQuery = '';
+        
+        // Fetch perks data
+        async function fetchPerks() {
+            try {
+                // Show loading message
+                document.getElementById('perk-container').innerHTML = '<div class="loading">Summoning perks from the Entity\'s realm...</div>';
+                
+                const params = {
+                    TableName: PERKS_TABLE
+                };
+                
+                const result = await docClient.scan(params).promise();
+                
+                if (!result.Items || result.Items.length === 0) {
+                    showError("No perks found in the database.");
+                    return;
+                }
+                
+                // Sort perks alphabetically by name
+                allPerks = result.Items.sort((a, b) => {
+                    return a.PerkName.localeCompare(b.PerkName);
+                });
+                
+                // Initialize with all perks
+                applyFilters();
+            } catch (error) {
+                console.error("Error fetching perks:", error);
+                showError("Failed to fetch perks data. Please try again later.");
+            }
+        }
+        
+        // Apply filters and search
+        function applyFilters() {
+            filteredPerks = allPerks.filter(perk => {
+                // Filter by type
+                const typeMatch = currentFilter === 'all' || perk.PerkType === currentFilter;
+                
+                // Filter by search query
+                const searchMatch = !searchQuery || 
+                    perk.PerkName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    (perk.PerkOwner && perk.PerkOwner.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                    (perk.PerkDescription && perk.PerkDescription.toLowerCase().includes(searchQuery.toLowerCase()));
+                
+                return typeMatch && searchMatch;
+            });
+            
+            // Reset to first page when filters change
+            currentPage = 1;
+            
+            // Update display
+            displayPerks();
+            updatePagination();
+        }
+        
+        // Display perks on the page
+        function displayPerks() {
+            const container = document.getElementById('perk-container');
+            
+            if (filteredPerks.length === 0) {
+                container.innerHTML = '<div class="no-results">No perks found matching your criteria.</div>';
+                return;
+            }
+            
+            // Calculate which perks to show on current page
+            const startIndex = (currentPage - 1) * perksPerPage;
+            const endIndex = Math.min(startIndex + perksPerPage, filteredPerks.length);
+            const perksToShow = filteredPerks.slice(startIndex, endIndex);
+            
+            const perkList = document.createElement('div');
+            perkList.className = 'perk-list';
+            
+            perksToShow.forEach(perk => {
+                const card = createPerkCard(perk);
+                perkList.appendChild(card);
+            });
+            
+            container.innerHTML = '';
+            container.appendChild(perkList);
+        }
+        
+        // Create a perk card element
+        function createPerkCard(perk) {
+            const card = document.createElement('div');
+            card.className = 'perk-card';
+            
+            const perkImagePath = `${perk.Folder}/${perk.Filename}`;
+            
+            // Create type badge class
+            const typeClass = perk.PerkType === 'Killer' ? 'killer-badge' : 'survivor-badge';
+            
+            // Truncate description if it's too long
+            let description = perk.PerkDescription;
+            if (description && description.length > 200) {
+                description = description.substring(0, 200) + '...';
+            }
+            
+            card.innerHTML = `
+                <div class="perk-image-container">
+                    <img src="${perkImagePath}" alt="${perk.PerkName}" class="perk-image">
+                </div>
+                <div class="perk-info">
+                    <h3 class="perk-name">${perk.PerkName}</h3>
+                    <div class="perk-badges">
+                        <span class="perk-badge ${typeClass}">${perk.PerkType}</span>
+                    </div>
+                    ${perk.PerkOwner ? `<div class="perk-owner">Owner: ${perk.PerkOwner}</div>` : ''}
+                    <div class="perk-description">${description}</div>
+                    <div class="popup-buttons">
+                        <button class="popup-button" onclick="openPerkDetailsPopup('${escapeHtml(perk.PerkName)}')">View Details</button>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        // Escape HTML for security
+        function escapeHtml(html) {
+            const div = document.createElement('div');
+            div.textContent = html;
+            return div.innerHTML.replace(/"/g, '&quot;');
+        }
+        
+        // Open perk details popup
+        function openPerkDetailsPopup(perkName) {
+            const perk = allPerks.find(p => p.PerkName === perkName);
+            if (!perk) return;
+            
+            const perkPopup = document.getElementById('perkDetailsPopup');
+            const perkContent = document.getElementById('perkDetailsContent');
+            
+            const perkImagePath = `${perk.Folder}/${perk.Filename}`;
+            const typeClass = perk.PerkType === 'Killer' ? 'killer-badge' : 'survivor-badge';
+            
+            perkContent.innerHTML = `
+                <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                    <img src="${perkImagePath}" alt="${perk.PerkName}" style="width: 80px; height: 80px; margin-right: 20px;">
+                    <div>
+                        <h3 style="margin: 0 0 10px 0;">${perk.PerkName}</h3>
+                        <div class="perk-badges">
+                            <span class="perk-badge ${typeClass}">${perk.PerkType}</span>
+                        </div>
+                    </div>
+                </div>
+                ${perk.PerkOwner ? `<div style="margin-bottom: 15px;"><strong>Owner:</strong> ${perk.PerkOwner}</div>` : ''}
+                <div style="margin-bottom: 15px;"><strong>Description:</strong></div>
+                <div style="margin-bottom: 20px;">${perk.PerkDescription}</div>
+                ${perk.PerkQuote ? `
+                    <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #444;">
+                        <div class="perk-quote">${perk.PerkQuote}</div>
+                    </div>
+                ` : ''}
+            `;
+            
+            document.querySelector('#perkDetailsPopup .popup-title').textContent = perk.PerkName;
+            perkPopup.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Close popup
+        function closePopup(popupId) {
+            document.getElementById(popupId).classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Update pagination controls
+        function updatePagination() {
+            const paginationContainer = document.getElementById('pagination');
+            const totalPages = Math.ceil(filteredPerks.length / perksPerPage);
+            
+            if (totalPages <= 1) {
+                paginationContainer.innerHTML = '';
+                return;
+            }
+            
+            let paginationHTML = '';
+            
+            // Previous button
+            paginationHTML += `
+                <button class="pagination-button ${currentPage === 1 ? 'disabled' : ''}" 
+                    ${currentPage === 1 ? 'disabled' : 'onclick="changePage(currentPage - 1)"'}>
+                    &laquo;
+                </button>
+            `;
+            
+            // Page numbers
+            const maxPageButtons = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxPageButtons / 2));
+            let endPage = Math.min(totalPages, startPage + maxPageButtons - 1);
+            
+            // Adjust start if we're near the end
+            if (endPage - startPage + 1 < maxPageButtons) {
+                startPage = Math.max(1, endPage - maxPageButtons + 1);
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                paginationHTML += `
+                    <button class="pagination-button ${i === currentPage ? 'active' : ''}" 
+                        onclick="changePage(${i})">
+                        ${i}
+                    </button>
+                `;
+            }
+            
+            // Next button
+            paginationHTML += `
+                <button class="pagination-button ${currentPage === totalPages ? 'disabled' : ''}" 
+                    ${currentPage === totalPages ? 'disabled' : 'onclick="changePage(currentPage + 1)"'}>
+                    &raquo;
+                </button>
+            `;
+            
+            paginationContainer.innerHTML = paginationHTML;
+        }
+        
+        // Change page
+        function changePage(page) {
+            currentPage = page;
+            displayPerks();
+            updatePagination();
+            
+            // Scroll to top of perk container
+            document.getElementById('perk-container').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Show error message
+        function showError(message) {
+            const container = document.getElementById('perk-container');
+            container.innerHTML = `
+                <div class="error-message">
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Filter buttons
+            document.querySelectorAll('.filter-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    // Update active class
+                    document.querySelectorAll('.filter-button').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    // Update filter and apply
+                    currentFilter = this.getAttribute('data-filter');
+                    applyFilters();
+                });
+            });
+            
+            // Search button
+            document.getElementById('searchButton').addEventListener('click', function() {
+                searchQuery = document.getElementById('searchInput').value.trim();
+                applyFilters();
+            });
+            
+            // Search input (on Enter key)
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchQuery = this.value.trim();
+                    applyFilters();
+                }
+            });
+            
+            // Close popup when clicking outside content
+            document.querySelectorAll('.popup-overlay').forEach(overlay => {
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('active');
+                        document.body.style.overflow = 'auto';
+                    }
+                });
+            });
+            
+            // Close popup with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.popup-overlay.active').forEach(popup => {
+                        popup.classList.remove('active');
+                        document.body.style.overflow = 'auto';
+                    });
+                }
+            });
+        }
+        
+        // Wait for the DOM to be fully loaded before initializing
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchPerks();
+            setupEventListeners();
+            
+            // Back to top button functionality
+            const backToTopButton = document.querySelector('.back-to-top');
+            
+            // Show/hide back to top button based on scroll position
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    backToTopButton.style.display = 'block';
+                } else {
+                    backToTopButton.style.display = 'none';
+                }
+            });
+            
+            // Smooth scroll to top when button is clicked
+            backToTopButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+    
+    <a href="#" class="back-to-top">↑</a>
+</body>
+</html>
