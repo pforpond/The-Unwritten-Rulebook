@@ -7,6 +7,7 @@
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="stylesheet" href="landing.css">
     <link rel="stylesheet" href="playerlist.css">
+    <link rel="stylesheet" href="perklist.css">
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1048.0.min.js"></script>
 </head>
 <body>
@@ -160,7 +161,7 @@
             const container = document.getElementById('perk-container');
             
             if (filteredPerks.length === 0) {
-                container.innerHTML = '<div class="no-results">No perks found matching your criteria.</div>';
+                container.innerHTML = '<div class="no-results">The entity could not find any perks that match your request.</div>';
                 return;
             }
             

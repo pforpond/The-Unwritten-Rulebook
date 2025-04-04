@@ -1,0 +1,248 @@
+.perk-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin: 2rem 0;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.perk-card {
+    background-color: rgba(20, 20, 20, 0.8);
+    border: 2px solid #700f0f;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s;
+    display: flex;
+    flex-direction: row;
+}
+
+.perk-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(112, 15, 15, 0.5);
+}
+
+.perk-image-container {
+    flex: 0 0 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-right: 2px solid #700f0f;
+}
+
+.perk-image {
+    width: 100%;
+    height: auto;
+    max-height: 100px;
+    object-fit: contain;
+}
+
+.perk-info {
+    padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.perk-name {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+    color: #fff;
+}
+
+.perk-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.perk-badge {
+    font-size: 0.9rem;
+    color: #a8a8a8;
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 50px;
+    border: 1px solid;
+}
+
+.survivor-badge {
+    background-color: rgba(0, 89, 149, 0.3);
+    border-color: #005995;
+}
+
+.killer-badge {
+    background-color: rgba(112, 15, 15, 0.3);
+    border-color: #700f0f;
+}
+
+.perk-owner {
+    font-size: 1rem;
+    color: #d8d8d8;
+    margin-bottom: 1rem;
+}
+
+.perk-description {
+    font-size: 0.95rem;
+    color: #a8a8a8;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+}
+
+/* Filter and search controls */
+.filter-controls {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.filter-button {
+    background-color: rgba(20, 20, 20, 0.8);
+    color: #d8d8d8;
+    border: 1px solid #700f0f;
+    padding: 0.7rem 1.2rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+.filter-button:hover {
+    background-color: rgba(112, 15, 15, 0.5);
+}
+
+.filter-button.active {
+    background-color: #700f0f;
+    color: white;
+}
+
+.search-container {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.search-input {
+    padding: 0.7rem 1rem;
+    border-radius: 5px;
+    border: 1px solid #700f0f;
+    background-color: rgba(20, 20, 20, 0.8);
+    color: #d8d8d8;
+    width: 100%;
+    max-width: 500px;
+    font-size: 1rem;
+}
+
+.search-button {
+    background-color: #700f0f;
+    color: white;
+    border: none;
+    padding: 0.7rem 1.2rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+.search-button:hover {
+    background-color: #8f1717;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 2rem 0;
+}
+
+.pagination-button {
+    background-color: rgba(20, 20, 20, 0.8);
+    color: #d8d8d8;
+    border: 1px solid #700f0f;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+    min-width: 40px;
+}
+
+.pagination-button:hover {
+    background-color: rgba(112, 15, 15, 0.5);
+}
+
+.pagination-button.active {
+    background-color: #700f0f;
+    color: white;
+}
+
+.pagination-button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* No results message */
+.no-results {
+    text-align: center;
+    padding: 3rem;
+    font-size: 1.2rem;
+    color: #a8a8a8;
+    background-color: rgba(20, 20, 20, 0.8);
+    border: 1px solid #700f0f;
+    border-radius: 10px;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .perk-card {
+        flex-direction: column;
+    }
+    
+    .perk-image-container {
+        flex: 0 0 auto;
+        padding: 1.5rem;
+        border-right: none;
+        border-bottom: 2px solid #700f0f;
+    }
+    
+    .perk-image {
+        max-height: 80px;
+    }
+    
+    .filter-controls {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .filter-button {
+        width: 100%;
+        max-width: 300px;
+        text-align: center;
+    }
+    
+    .search-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .search-button {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    .perk-name {
+        font-size: 1.5rem;
+    }
+    
+    .pagination {
+        flex-wrap: wrap;
+    }
+}
