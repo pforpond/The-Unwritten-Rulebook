@@ -92,7 +92,7 @@
     margin-bottom: 1.5rem;
 }
 
-/* Filter and search controls */
+/* Filter controls */
 .filter-controls {
     display: flex;
     justify-content: center;
@@ -118,39 +118,6 @@
 .filter-button.active {
     background-color: #700f0f;
     color: white;
-}
-
-.search-container {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-bottom: 2rem;
-}
-
-.search-input {
-    padding: 0.7rem 1rem;
-    border-radius: 5px;
-    border: 1px solid #700f0f;
-    background-color: rgba(20, 20, 20, 0.8);
-    color: #d8d8d8;
-    width: 100%;
-    max-width: 500px;
-    font-size: 1rem;
-}
-
-.search-button {
-    background-color: #700f0f;
-    color: white;
-    border: none;
-    padding: 0.7rem 1.2rem;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.3s;
-}
-
-.search-button:hover {
-    background-color: #8f1717;
 }
 
 /* Pagination */
@@ -187,18 +154,6 @@
     cursor: not-allowed;
 }
 
-/* No results message */
-.no-results {
-    text-align: center;
-    padding: 3rem;
-    font-size: 1.2rem;
-    color: #a8a8a8;
-    background-color: rgba(20, 20, 20, 0.8);
-    border: 1px solid #700f0f;
-    border-radius: 10px;
-}
-
-/* Responsive styles */
 @media (max-width: 768px) {
     .perk-card {
         flex-direction: column;

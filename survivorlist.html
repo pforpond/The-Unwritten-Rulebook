@@ -46,6 +46,11 @@
             </div>
         <h1 class="page-title">Almanac - Survivors</h1>
         
+        <div class="search-container">
+            <input type="text" class="search-input" id="searchInput" placeholder="Search survivors...">
+            <button class="search-button" id="searchButton">Search</button>
+        </div>
+        
         <div id="survivor-container">
             <div class="loading">Loading survivors from the fog...</div>
         </div>
@@ -92,7 +97,9 @@
         
         // Data storage
         let allSurvivors = [];
+        let filteredSurvivors = [];
         let allPerks = [];
+        let searchQuery = '';
         
         // Fetch data from both tables
         async function fetchData() {
@@ -116,6 +123,9 @@
                     return a.SurvivorNumber - b.SurvivorNumber;
                 });
                 
+                // Initialize filtered survivors
+                filteredSurvivors = [...allSurvivors];
+                
                 // Fetch perks
                 const perkParams = {
                     TableName: PERKS_TABLE
@@ -135,15 +145,60 @@
             }
         }
         
+        // Apply search filter
+        function applySearch() {
+            if (!searchQuery) {
+                filteredSurvivors = [...allSurvivors];
+            } else {
+                const query = searchQuery.toLowerCase();
+                
+                filteredSurvivors = allSurvivors.filter(survivor => {
+                    // Search by name
+                    if (survivor.SurvivorName.toLowerCase().includes(query)) {
+                        return true;
+                    }
+                    
+                    // Search by gender if available
+                    if (survivor.SurvivorGender && survivor.SurvivorGender.toLowerCase().includes(query)) {
+                        return true;
+                    }
+                    
+                    // Search by role if available
+                    if (survivor.SurvivorRole && survivor.SurvivorRole.toLowerCase().includes(query)) {
+                        return true;
+                    }
+                    
+                    // Search by origin if available
+                    if (survivor.SurvivorOrigin && survivor.SurvivorOrigin.toLowerCase().includes(query)) {
+                        return true;
+                    }
+                    
+                    // Search in lore if available
+                    if (survivor.SurvivorLore && survivor.SurvivorLore.toLowerCase().includes(query)) {
+                        return true;
+                    }
+                    
+                    return false;
+                });
+            }
+            
+            displaySurvivors();
+        }
+        
         // Display survivors on the page
         function displaySurvivors() {
             const container = document.getElementById('survivor-container');
             container.innerHTML = ''; // Clear loading message
             
+            if (filteredSurvivors.length === 0) {
+                container.innerHTML = '<div class="no-results">No survivors found matching your search criteria.</div>';
+                return;
+            }
+            
             const survivorList = document.createElement('div');
             survivorList.className = 'survivor-list';
             
-            allSurvivors.forEach(survivor => {
+            filteredSurvivors.forEach(survivor => {
                 // Get perks for this survivor
                 const survivorPerks = allPerks.filter(perk => perk.PerkOwner === survivor.SurvivorName);
                 
@@ -179,26 +234,25 @@
             badgesHTML += '</div>';
             
             // Store perks HTML for popup
-           // Update this section in the createSurvivorCard function
-let perksHTML = '';
-if (perks && perks.length > 0) {
-    perksHTML = `
-        <div class="perk-list">
-            ${perks.map(perk => `
-                <div class="perk-item">
-                    <img src="${perk.Folder}/${perk.Filename}" alt="${perk.PerkName}" class="perk-image">
-                    <div class="perk-details">
-                        <div class="perk-name">${perk.PerkName}</div>
-                        <div class="perk-description">${perk.PerkDescription}</div>
-                        ${perk.PerkQuote ? `<div class="perk-quote">${perk.PerkQuote}</div>` : ''}
+            let perksHTML = '';
+            if (perks && perks.length > 0) {
+                perksHTML = `
+                    <div class="perk-list">
+                        ${perks.map(perk => `
+                            <div class="perk-item">
+                                <img src="${perk.Folder}/${perk.Filename}" alt="${perk.PerkName}" class="perk-image">
+                                <div class="perk-details">
+                                    <div class="perk-name">${perk.PerkName}</div>
+                                    <div class="perk-description">${perk.PerkDescription}</div>
+                                    ${perk.PerkQuote ? `<div class="perk-quote">${perk.PerkQuote}</div>` : ''}
+                                </div>
+                            </div>
+                        `).join('')}
                     </div>
-                </div>
-            `).join('')}
-        </div>
-    `;
-} else {
-    perksHTML = '<p class="no-perks-message">This survivor does not have any unique perks in the database.</p>';
-}
+                `;
+            } else {
+                perksHTML = '<p class="no-perks-message">This survivor does not have any unique perks in the database.</p>';
+            }
             
             card.innerHTML = `
                 <div class="survivor-image-container">
@@ -262,35 +316,46 @@ if (perks && perks.length > 0) {
             return div.innerHTML.replace(/"/g, '&quot;');
         }
         
-        // Close popup when clicking outside content
-        document.querySelectorAll('.popup-overlay').forEach(overlay => {
-            overlay.addEventListener('click', function(e) {
-                if (e.target === this) {
-                    this.classList.remove('active');
-                    document.body.style.overflow = 'auto';
+        // Set up event listeners
+        function setupEventListeners() {
+            // Search button
+            document.getElementById('searchButton').addEventListener('click', function() {
+                searchQuery = document.getElementById('searchInput').value.trim();
+                applySearch();
+            });
+            
+            // Search input (on Enter key)
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchQuery = this.value.trim();
+                    applySearch();
                 }
             });
-        });
-        
-        // Close popup with Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                document.querySelectorAll('.popup-overlay.active').forEach(popup => {
-                    popup.classList.remove('active');
-                    document.body.style.overflow = 'auto';
+            
+            // Close popup when clicking outside content
+            document.querySelectorAll('.popup-overlay').forEach(overlay => {
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('active');
+                        document.body.style.overflow = 'auto';
+                    }
                 });
-            }
-        });
-        
-        // Wait for the DOM to be fully loaded before initializing
-        document.addEventListener('DOMContentLoaded', function() {
-            fetchData();
-        });
-        
-           document.addEventListener('DOMContentLoaded', function() {
+            });
+            
+            // Close popup with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.popup-overlay.active').forEach(popup => {
+                        popup.classList.remove('active');
+                        document.body.style.overflow = 'auto';
+                    });
+                }
+            });
+            
+            // Back to top button functionality
             const backToTopButton = document.querySelector('.back-to-top');
-    
-     // Show/hide back to top button based on scroll position
+            
+            // Show/hide back to top button based on scroll position
             window.addEventListener('scroll', function() {
                 if (window.pageYOffset > 300) {
                     backToTopButton.style.display = 'block';
@@ -298,7 +363,7 @@ if (perks && perks.length > 0) {
                     backToTopButton.style.display = 'none';
                 }
             });
-
+            
             // Smooth scroll to top when button is clicked
             backToTopButton.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -307,8 +372,14 @@ if (perks && perks.length > 0) {
                     behavior: 'smooth'
                 });
             });
-});
+        }
+        
+        // Wait for the DOM to be fully loaded before initializing
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchData();
+            setupEventListeners();
+        });
     </script>
-<a href="#" class="back-to-top">↑</a>
+    <a href="#" class="back-to-top">↑</a>
 </body>
 </html>
