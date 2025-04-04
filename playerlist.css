@@ -367,3 +367,21 @@
             border-radius: 5px;
             border: 3px solid #700f0f;
         }
+        
+.back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: rgba(112, 15, 15, 0.8);
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 1.2rem;
+            transition: background-color 0.3s;
+            display: none;
+        }
+        
+        .back-to-top:hover {
+            background-color: #700f0f;
+        }
