@@ -100,38 +100,63 @@
         let filteredPerks = [];
         let currentFilter = 'all';
         let currentPage = 1;
-        const perksPerPage = 10; // Fewer perks per page for vertical layout
+        const perksPerPage = 20; 
         let searchQuery = '';
+        const KILLERS_TABLE = 'GameKillers';
+		const SURVIVORS_TABLE = 'GameSurvivors';
+		let allKillers = [];
+		let allSurvivors = [];
         
         // Fetch perks data
         async function fetchPerks() {
-            try {
-                // Show loading message
-                document.getElementById('perk-container').innerHTML = '<div class="loading">Summoning perks from the Entity\'s realm...</div>';
-                
-                const params = {
-                    TableName: PERKS_TABLE
-                };
-                
-                const result = await docClient.scan(params).promise();
-                
-                if (!result.Items || result.Items.length === 0) {
-                    showError("No perks found in the database.");
-                    return;
-                }
-                
-                // Sort perks alphabetically by name
-                allPerks = result.Items.sort((a, b) => {
-                    return a.PerkName.localeCompare(b.PerkName);
-                });
-                
-                // Initialize with all perks
-                applyFilters();
-            } catch (error) {
-                console.error("Error fetching perks:", error);
-                showError("Failed to fetch perks data. Please try again later.");
-            }
+    try {
+        // Show loading message
+        document.getElementById('perk-container').innerHTML = '<div class="loading">Summoning perks from the Entity\'s realm...</div>';
+        
+        // Fetch perks
+        const perksParams = {
+            TableName: PERKS_TABLE
+        };
+        
+        const perkResult = await docClient.scan(perksParams).promise();
+        
+        if (!perkResult.Items || perkResult.Items.length === 0) {
+            showError("No perks found in the database.");
+            return;
         }
+        
+        // Sort perks alphabetically by name
+        allPerks = perkResult.Items.sort((a, b) => {
+            return a.PerkName.localeCompare(b.PerkName);
+        });
+        
+        // Fetch killers
+        const killersParams = {
+            TableName: KILLERS_TABLE
+        };
+        
+        const killerResult = await docClient.scan(killersParams).promise();
+        if (killerResult.Items && killerResult.Items.length > 0) {
+            allKillers = killerResult.Items;
+        }
+        
+        // Fetch survivors
+        const survivorsParams = {
+            TableName: SURVIVORS_TABLE
+        };
+        
+        const survivorResult = await docClient.scan(survivorsParams).promise();
+        if (survivorResult.Items && survivorResult.Items.length > 0) {
+            allSurvivors = survivorResult.Items;
+        }
+        
+        // Initialize with all perks
+        applyFilters();
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        showError("Failed to fetch data. Please try again later.");
+    }
+}
         
         // Apply filters and search
         function applyFilters() {
@@ -227,39 +252,69 @@
         
         // Open perk details popup
         function openPerkDetailsPopup(perkName) {
-            const perk = allPerks.find(p => p.PerkName === perkName);
-            if (!perk) return;
-            
-            const perkPopup = document.getElementById('perkDetailsPopup');
-            const perkContent = document.getElementById('perkDetailsContent');
-            
-            const perkImagePath = `${perk.Folder}/${perk.Filename}`;
-            const typeClass = perk.PerkType === 'Killer' ? 'killer-badge' : 'survivor-badge';
-            
-            perkContent.innerHTML = `
-                <div style="display: flex; align-items: center; margin-bottom: 20px;">
-                    <img src="${perkImagePath}" alt="${perk.PerkName}" style="width: 80px; height: 80px; margin-right: 20px;">
-                    <div>
-                        <h3 style="margin: 0 0 10px 0;">${perk.PerkName}</h3>
-                        <div class="perk-badges">
+    const perk = allPerks.find(p => p.PerkName === perkName);
+    if (!perk) return;
+    
+    const perkPopup = document.getElementById('perkDetailsPopup');
+    const perkContent = document.getElementById('perkDetailsContent');
+    
+    const perkImagePath = `${perk.Folder}/${perk.Filename}`;
+    const typeClass = perk.PerkType === 'Killer' ? 'killer-badge' : 'survivor-badge';
+    
+    // Find matching character if perk has an owner
+    let characterImageHTML = '';
+    if (perk.PerkOwner) {
+        let characterData = null;
+        
+        if (perk.PerkType === 'Killer') {
+            characterData = allKillers.find(k => k.KillerName === perk.PerkOwner);
+        } else {
+            characterData = allSurvivors.find(s => s.SurvivorName === perk.PerkOwner);
+        }
+        
+        if (characterData) {
+            const characterImagePath = `${characterData.Folder}/${characterData.Filename}`;
+            characterImageHTML = `
+                <div style="margin-top: 20px; border-top: 1px solid #444; padding-top: 15px;">
+                    <h4 style="margin-bottom: 15px;">Character:</h4>
+                    <div style="display: flex; align-items: center;">
+                        <img src="${characterImagePath}" alt="${perk.PerkOwner}" 
+                            style="width: 120px; height: auto; max-height: 160px; object-fit: contain; margin-right: 15px;">
+                        <div>
+                            <h3 style="margin: 0;">${perk.PerkOwner}</h3>
                             <span class="perk-badge ${typeClass}">${perk.PerkType}</span>
                         </div>
                     </div>
                 </div>
-                ${perk.PerkOwner ? `<div style="margin-bottom: 15px;"><strong>Owner:</strong> ${perk.PerkOwner}</div>` : ''}
-                <div style="margin-bottom: 15px;"><strong>Description:</strong></div>
-                <div style="margin-bottom: 20px;">${perk.PerkDescription}</div>
-                ${perk.PerkQuote ? `
-                    <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #444;">
-                        <div class="perk-quote">${perk.PerkQuote}</div>
-                    </div>
-                ` : ''}
             `;
-            
-            document.querySelector('#perkDetailsPopup .popup-title').textContent = perk.PerkName;
-            perkPopup.classList.add('active');
-            document.body.style.overflow = 'hidden';
         }
+    }
+    
+    perkContent.innerHTML = `
+        <div style="display: flex; align-items: center; margin-bottom: 20px;">
+            <img src="${perkImagePath}" alt="${perk.PerkName}" style="width: 80px; height: 80px; margin-right: 20px;">
+            <div>
+                <h3 style="margin: 0 0 10px 0;">${perk.PerkName}</h3>
+                <div class="perk-badges">
+                    <span class="perk-badge ${typeClass}">${perk.PerkType}</span>
+                </div>
+            </div>
+        </div>
+        ${perk.PerkOwner ? `<div style="margin-bottom: 15px;"><strong>Owner:</strong> ${perk.PerkOwner}</div>` : ''}
+        <div style="margin-bottom: 15px;"><strong>Description:</strong></div>
+        <div style="margin-bottom: 20px;">${perk.PerkDescription}</div>
+        ${perk.PerkQuote ? `
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #444;">
+                <div class="perk-quote">${perk.PerkQuote}</div>
+            </div>
+        ` : ''}
+        ${characterImageHTML}
+    `;
+    
+    document.querySelector('#perkDetailsPopup .popup-title').textContent = perk.PerkName;
+    perkPopup.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
         
         // Close popup
         function closePopup(popupId) {
