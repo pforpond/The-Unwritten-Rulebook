@@ -329,3 +329,41 @@
     border-left: 3px solid #555;
     padding-left: 10px;
 }
+
+.hero-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+        
+        .hero-button {
+            transition: transform 0.3s;
+            position: relative;
+        }
+        
+        .hero-button:hover {
+            transform: scale(1.1);
+        }
+        
+        .hero-button:hover::after {
+            content: attr(data-title);
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            border: 1px solid #700f0f;
+        }
+        
+        .hero-button img {
+            height: 4rem;
+            width: auto;
+            border-radius: 5px;
+            border: 3px solid #700f0f;
+        }
