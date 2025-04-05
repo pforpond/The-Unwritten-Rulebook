@@ -121,7 +121,7 @@
         const perkResult = await docClient.scan(perksParams).promise();
         
         if (!perkResult.Items || perkResult.Items.length === 0) {
-            showError("No perks found in the database.");
+            showError("No perks found matching your search. The entity is displeased.");
             return;
         }
         

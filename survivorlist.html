@@ -115,7 +115,7 @@
                 const survivorResult = await docClient.scan(survivorParams).promise();
                 
                 if (!survivorResult.Items || survivorResult.Items.length === 0) {
-                    showError("No survivors found in the database.");
+                    showError("No survivors found matching your search. The entity is displeased.");
                     return;
                 }
                 
