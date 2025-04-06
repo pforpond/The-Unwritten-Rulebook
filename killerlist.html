@@ -123,7 +123,7 @@
                 const killerResult = await docClient.scan(killerParams).promise();
                 
                 if (!killerResult.Items || killerResult.Items.length === 0) {
-                    showError("No killers found in the database.");
+                    showError("No killers found matching your search. The entity is displeased.");
                     return;
                 }
                 
