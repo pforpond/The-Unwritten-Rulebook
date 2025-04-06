@@ -50,19 +50,108 @@
             </div>
         </div>
     </section>
-    
     <section id="about" class="coming-soon">
         <div class="container">
             <h2 style="margin-bottom: 2rem; color: #fff; font-size: 2.5rem;">What is The Unwritten Rulebook?</h2>
             <p class="description">
-                Every Dead by Daylight player knows there are unspoken rules in the fog. 
-                Don't camp, don't tunnel, give hatch to the last survivor... or do you?
+                The Unwritten Rulebook began as a collection of Dead by Daylight's notorious 'unwritten rules' that veterans debate and newcomers struggle to decipher. Don't camp, don't tunnel, give hatch to the last survivor... or do you?
+            </p>
+            <p class="description">
+				But just like the Entity's realm, we've expanded. Now we're your comprehensive companion in the fog, featuring a Perk Shuffle to spice up your builds, a regularly updated Promotional Code list to claim in-game rewards, and an extensive Almanac documenting every dark corner of the game's mechanics, characters, and strategies.
+            </p>
+            <p class="description"> 
+				Whether you're a seasoned killer, a sweaty survivor, or fresh meat, The Unwritten Rulebook is your guide to navigating both the official mechanics and the community's ever-evolving expectations. Break the rules at your own risk!
             </p>
         </div>
     </section>
     
+<section id="latest-changes" class="latest-changes">
+    <div class="container">
+        <h2 style="margin-bottom: 2rem; color: #fff; font-size: 2.5rem; text-shadow: 0 0 10px #700f0f;">Latest Changes</h2>
+        <div id="changes-container">
+            <p class="loading-text">Loading latest changes...</p>
+            <!-- Changes will be loaded here dynamically -->
+        </div>
+    </div>
+</section>
+
+<script src="https://sdk.amazonaws.com/js/aws-sdk-2.1048.0.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize the Amazon Cognito credentials provider
+        AWS.config.region = 'eu-west-2';
+        AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+            IdentityPoolId: 'eu-west-2:f8f16cb5-193e-428d-a909-abd6b44bf275',
+        });
+
+        // Initialize DynamoDB
+        const dynamodb = new AWS.DynamoDB.DocumentClient();
+
+        // Function to convert British date format (DD/MM/YYYY) to a comparable value
+        function parseBritishDate(dateStr) {
+            const parts = dateStr.split('/');
+            if (parts.length === 3) {
+                // Rearrange to YYYY-MM-DD for proper comparison
+                return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+            }
+            return new Date(0); // Return epoch if invalid format
+        }
+
+        // Function to fetch and display latest changes
+        function fetchLatestChanges() {
+            const params = {
+                TableName: 'RulebookChanges',
+            };
+
+            dynamodb.scan(params, function(err, data) {
+                const changesContainer = document.getElementById('changes-container');
+                
+                if (err) {
+                    console.error("Unable to fetch changes:", err);
+                    changesContainer.innerHTML = '<p class="error-text">Unable to load latest changes. Please try again later.</p>';
+                    return;
+                }
+                
+                // Sort items by ChangeDate in descending order - handling British format
+                const sortedItems = data.Items.sort((a, b) => {
+                    const dateA = parseBritishDate(a.ChangeDate);
+                    const dateB = parseBritishDate(b.ChangeDate);
+                    return dateB - dateA; // Descending order (newest first)
+                });
+                
+                // Limit to 5 items after sorting
+                const recentItems = sortedItems.slice(0, 5);
+                
+                // Create the HTML for the changes list
+                if (recentItems.length > 0) {
+                    let changesHTML = '<ul class="changes-list">';
+                    
+                    recentItems.forEach(item => {
+                        // No need to format the date since it's already in British format - the best and truest of formats
+                        changesHTML += `
+                            <li class="change-item">
+                                <span class="change-date">${item.ChangeDate}</span>
+                                <span class="change-description">${item.ChangeDescription}</span>
+                            </li>
+                        `;
+                    });
+                    
+                    changesHTML += '</ul>';
+                    changesContainer.innerHTML = changesHTML;
+                } else {
+                    changesContainer.innerHTML = '<p class="description">No recent changes found.</p>';
+                }
+            });
+        }
+
+        // Call the function to fetch changes when the page loads
+        fetchLatestChanges();
+    });
+</script>
+    
     <footer class="footer">
         <div class="container">
+			<p>Almanac is in BETA. More features will be added to it over time.</p>
             <p>The Unwritten Rulebook is a fan-made project and is not affiliated with Behaviour Interactive or Dead by Daylight.</p>
         </div>
     </footer>
