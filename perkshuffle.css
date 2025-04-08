@@ -703,3 +703,5 @@
         .back-to-top:hover {
             background-color: #700f0f;
         }
+
+* { -webkit-tap-highlight-color: rgba(0, 0, 0, 0); }
