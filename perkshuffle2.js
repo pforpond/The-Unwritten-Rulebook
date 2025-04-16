@@ -127,7 +127,7 @@ function updatePerkDisplay() {
         // Determine correct image path based on whether it's a perk or item
         if (perk.isItem) {
             perkImage.src = `${perk.folder}/${perk.file}`;
-            perkCard.classList.add("item-card"); // Add item class for styling if needed
+            perkCard.classList.add("item-card"); // Add item class for styling
         } else {
             perkImage.src = `${perk.type.toLowerCase() === 'survivor' ? 'survivorperks' : 'killerperks'}/${perk.file}`;
         }
@@ -171,7 +171,7 @@ function updatePerkDisplay() {
         // Determine correct image path for details view
         if (perk.isItem) {
             detailImage.src = `${perk.folder}/${perk.file}`;
-            detailCard.classList.add("item-detail-card"); // Add item class for styling if needed
+            detailCard.classList.add("item-detail-card"); // Add item class for styling
         } else {
             detailImage.src = `${perk.type.toLowerCase() === 'survivor' ? 'survivorperks' : 'killerperks'}/${perk.file}`;
         }
@@ -213,43 +213,16 @@ function updatePerkDisplay() {
 const perksContainer = document.getElementById("perks-container");
 const roleButtons = document.querySelectorAll(".toggle-button");
 const shuffleButton = document.getElementById("shuffle-button");
+const itemToggle = document.getElementById("include-items");
 let currentRole = "Survivor";
 let currentPerks = [];
 let heldPerks = [false, false, false, false];
 
-// Add item toggle
-function createItemToggle() {
-    const roleSelector = document.querySelector('.role-selector');
-    
-    // Create item toggle button
-    const itemToggle = document.createElement('div');
-    itemToggle.className = 'item-toggle';
-    
-    const itemCheckbox = document.createElement('input');
-    itemCheckbox.type = 'checkbox';
-    itemCheckbox.id = 'include-items';
-    
-    const itemLabel = document.createElement('label');
-    itemLabel.htmlFor = 'include-items';
-    itemLabel.textContent = 'Include Items';
-    
-    itemToggle.appendChild(itemCheckbox);
-    itemToggle.appendChild(itemLabel);
-    
-    // Only show for survivor role
-    itemToggle.style.display = currentRole === 'Survivor' ? 'block' : 'none';
-    
-    // Insert after role selector
-    roleSelector.parentNode.insertBefore(itemToggle, roleSelector.nextSibling);
-    
-    // Add event listener
-    itemCheckbox.addEventListener('change', function() {
-        showItems = this.checked;
-        console.log("Include items:", showItems);
-    });
-    
-    return itemToggle;
-}
+// Set up item toggle event listener
+itemToggle.addEventListener("change", function() {
+    showItems = this.checked;
+    console.log("Include items:", showItems);
+});
 
 // Set up role buttons
 roleButtons.forEach(button => {
@@ -265,9 +238,9 @@ roleButtons.forEach(button => {
         initializeEmptyPerkCards();
         
         // Update item toggle visibility
-        const itemToggle = document.querySelector('.item-toggle');
-        if (itemToggle) {
-            itemToggle.style.display = currentRole === 'Survivor' ? 'block' : 'none';
+        const itemToggleContainer = document.querySelector('.item-toggle');
+        if (itemToggleContainer) {
+            itemToggleContainer.style.display = currentRole === 'Survivor' ? 'flex' : 'none';
         }
         
         console.log("Current role changed to:", currentRole);
@@ -374,15 +347,13 @@ function shufflePerks() {
 // Initialize the page
 async function initializePage() {
     try {
-        // Create item toggle
-        const itemToggle = createItemToggle();
+        // Set initial item toggle visibility
+        const itemToggleContainer = document.querySelector('.item-toggle');
+        itemToggleContainer.style.display = currentRole === 'Survivor' ? 'flex' : 'none';
         
         // Fetch both perks and items
         await Promise.all([fetchPerks(), fetchSurvivorItems()]);
         initializeEmptyPerkCards();
-        
-        // Update item toggle visibility based on initial role
-        itemToggle.style.display = currentRole === 'Survivor' ? 'block' : 'none';
     } catch (error) {
         console.error("Failed to initialize page:", error);
         // Show an error message to the user
@@ -393,24 +364,7 @@ async function initializePage() {
     }
 }
 
-// Add AWS SDK script dynamically
-function loadAwsSdk() {
-    return new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = 'https://sdk.amazonaws.com/js/aws-sdk-2.1058.0.min.js';
-        script.onload = resolve;
-        script.onerror = reject;
-        document.head.appendChild(script);
-    });
-}
-
-// Load AWS SDK and then initialize
-loadAwsSdk()
-    .then(initializePage)
-    .catch(error => {
-        console.error("Failed to load AWS SDK:", error);
-    });
-    
+// Initialize when document is loaded
 document.addEventListener('DOMContentLoaded', function() {
     const backToTopButton = document.querySelector('.back-to-top');
 
@@ -431,6 +385,9 @@ document.addEventListener('DOMContentLoaded', function() {
             behavior: 'smooth'
         });
     });
+    
+    // Initialize after DOM is loaded
+    initializePage();
 });
 
 shuffleButton.addEventListener("click", shufflePerks);

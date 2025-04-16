@@ -36,32 +36,40 @@
             <p class="tagline">Randomly select 4 perks and challenge yourself with a new build!</p>
             <p class="tagline">Select a perk to hold it! Scroll down for perk descriptions!</p>
             <div class="perk-shuffle-container">
-                <div class="role-selector">
-					<button class="toggle-button" data-role="Killer" data-title="Killer">
-						<img src="killer.png" alt="Killer">
-					</button>
-					<button class="toggle-button active" data-role="Survivor" data-title="Survivor">
-						<img src="survivor.png" alt="Survivor">
-					</button>
-				</div>
-                
-                <button id="shuffle-button" class="shuffle-button">Shuffle Perks</button>
+                <div class="shuffle-controls">
+                    <div class="role-selector">
+                        <button class="toggle-button" data-role="Killer" data-title="Killer">
+                            <img src="killer.png" alt="Killer">
+                        </button>
+                        <button class="toggle-button active" data-role="Survivor" data-title="Survivor">
+                            <img src="survivor.png" alt="Survivor">
+                        </button>
+                    </div>
+                    
+                    <!-- Item toggle will be inserted here by JavaScript -->
+                    <div class="item-toggle">
+                        <input type="checkbox" id="include-items">
+                        <label for="include-items">Include Items</label>
+                    </div>
+                    
+                    <button id="shuffle-button" class="shuffle-button">Shuffle Perks</button>
+                </div>
                 
                 <div class="perks-container" id="perks-container">
                     <div class="perk-card">
-                        <img class="perk-image" src="/api/placeholder/180/180" alt="No Perk">
+                        <img class="perk-image" src="noperk.png" alt="No Perk">
                         <div class="perk-name">Select a role and shuffle</div>
                     </div>
                     <div class="perk-card">
-                        <img class="perk-image" src="/api/placeholder/180/180" alt="No Perk">
+                        <img class="perk-image" src="noperk.png" alt="No Perk">
                         <div class="perk-name">Select a role and shuffle</div>
                     </div>
                     <div class="perk-card">
-                        <img class="perk-image" src="/api/placeholder/180/180" alt="No Perk">
+                        <img class="perk-image" src="noperk.png" alt="No Perk">
                         <div class="perk-name">Select a role and shuffle</div>
                     </div>
                     <div class="perk-card">
-                        <img class="perk-image" src="/api/placeholder/180/180" alt="No Perk">
+                        <img class="perk-image" src="noperk.png" alt="No Perk">
                         <div class="perk-name">Select a role and shuffle</div>
                     </div>
                 </div> 
@@ -69,9 +77,9 @@
         </div>
     </section>
     <section>
-		<div id="perk-details" class="perk-details-container">
-			<div class="description-placeholder">Shuffle perks to see descriptions</div>
-		</div>
+        <div id="perk-details" class="perk-details-container">
+            <div class="description-placeholder">Shuffle perks to see descriptions</div>
+        </div>
     </section>
     
     <footer class="footer">
@@ -80,8 +88,8 @@
         </div>
     </footer>
     
-	<script src="https://sdk.amazonaws.com/js/aws-sdk-2.1058.0.min.js"></script>
-    <script type="module" src="perkshuffle.js"></script>
-<a href="#" class="back-to-top">↑</a>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1058.0.min.js"></script>
+    <script src="perkshuffle.js"></script>
+    <a href="#" class="back-to-top">↑</a>
 </body>
 </html>
