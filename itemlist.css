@@ -1,0 +1,159 @@
+/* Item Type Section Styling */
+.item-type-section {
+    margin-bottom: 3rem;
+}
+
+.item-type-header {
+    font-size: 2rem;
+    color: #fff;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #700f0f;
+    text-shadow: 0 0 5px rgba(112, 15, 15, 0.7);
+}
+
+/* Filter Buttons */
+.filter-container {
+    margin: 2rem 0;
+}
+
+.filter-buttons {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+}
+
+.filter-button {
+    background-color: rgba(20, 20, 20, 0.8);
+    color: #d8d8d8;
+    border: 1px solid #700f0f;
+    padding: 0.6rem 1.2rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.filter-button:hover {
+    background-color: rgba(112, 15, 15, 0.3);
+}
+
+.filter-button.active {
+    background-color: #700f0f;
+    color: #fff;
+}
+
+/* Rarity Styling */
+.rarity-badge {
+    font-weight: bold;
+}
+
+.rarity-common {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: #aaa;
+}
+
+.rarity-uncommon {
+    background-color: rgba(102, 204, 102, 0.2);
+    border-color: #6c6;
+    color: #8e8;
+}
+
+.rarity-rare {
+    background-color: rgba(102, 102, 204, 0.2);
+    border-color: #66c;
+    color: #88f;
+}
+
+.rarity-very-rare {
+    background-color: rgba(153, 51, 153, 0.2);
+    border-color: #939;
+    color: #c6c;
+}
+
+.rarity-ultra-rare {
+    background-color: rgba(204, 51, 51, 0.2);
+    border-color: #c33;
+    color: #f88;
+}
+
+/* Rarity border colors for cards */
+.rarity-common {
+    border-color: #aaa;
+}
+
+.rarity-uncommon {
+    border-color: #4c4;
+}
+
+.rarity-rare {
+    border-color: #44f;
+}
+
+.rarity-very-rare {
+    border-color: #a3a;
+}
+
+.rarity-ultra-rare {
+    border-color: #f44;
+}
+
+/* Item stats in popup */
+.item-stats {
+    margin-bottom: 1.5rem;
+    background-color: rgba(112, 15, 15, 0.2);
+    border-radius: 5px;
+    padding: 0.8rem;
+    border: 1px solid rgba(112, 15, 15, 0.4);
+}
+
+.item-stat {
+    margin-bottom: 0.5rem;
+    color: #d8d8d8;
+    font-size: 0.95rem;
+}
+
+.item-stat:last-child {
+    margin-bottom: 0;
+}
+
+.item-stat span {
+    font-weight: bold;
+    color: #fff;
+    margin-right: 0.3rem;
+}
+
+/* Rarity text colors in popup */
+.rarity-text.common {
+    color: #fff;
+}
+
+.rarity-text.uncommon {
+    color: #8e8;
+}
+
+.rarity-text.rare {
+    color: #88f;
+}
+
+.rarity-text.very-rare {
+    color: #c6c;
+}
+
+.rarity-text.ultra-rare {
+    color: #f88;
+}
+
+/* Responsive design for filters */
+@media (max-width: 768px) {
+    .filter-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .filter-button {
+        width: 80%;
+        text-align: center;
+    }
+}
