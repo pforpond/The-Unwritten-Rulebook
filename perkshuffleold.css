@@ -114,9 +114,8 @@
         .role-selector {
     display: flex;
     justify-content: center;
-    gap: 1.5rem; 
+    gap: 2rem;
     margin-bottom: 2rem;
-    flex-direction: row !important; 
 }
 
 .toggle-button {
@@ -166,15 +165,9 @@
     }
 }
 
-@media (max-width: 768px) {
-    .role-selector {
-        flex-direction: row !important;
-    }
-
 @media (max-width: 480px) {
     .toggle-button img {
         height: 3.5rem;
-        width: auto;
     }
 }
         
@@ -302,8 +295,8 @@
             }
             
             .role-selector {
-                 flex-direction: row !important;
-				gap: 1rem; /* Further reduce gap on very small screens */
+                flex-direction: column;
+                gap: 1rem;
             }
             
             .perks-container {
