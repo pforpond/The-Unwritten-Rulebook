@@ -79,14 +79,6 @@
         </div>
     </div>
     
-    <div class="popup-overlay" id="addonsPopup">
-        <div class="popup-content">
-            <button class="popup-close" onclick="closePopup('addonsPopup')">&times;</button>
-            <h2 class="popup-title" id="addonsPopupTitle">Item Addons</h2>
-            <div id="addonsPopupContent"></div>
-        </div>
-    </div>
-    
     <footer class="footer">
         <div class="container">
             <p>The Unwritten Rulebook is a fan-made project and is not affiliated with Behaviour Interactive or Dead by Daylight.</p>
@@ -98,7 +90,6 @@
         const REGION = 'eu-west-2';
         const IDENTITY_POOL_ID = 'eu-west-2:f8f16cb5-193e-428d-a909-abd6b44bf275';
         const ITEM_TABLE = 'GameSurvivorItems';
-        const ADDON_TABLE = 'SurvivorAddons';
         
         // Initialize AWS SDK
         AWS.config.region = REGION;
@@ -112,7 +103,6 @@
         // Data storage
         let allItems = [];
         let filteredItems = [];
-        let allAddons = [];
         let searchQuery = '';
         let currentFilter = 'all';
         
@@ -125,7 +115,7 @@
             'Ultra Rare': 5
         };
         
-        // Fetch data from the items + addons table
+        // Fetch data from the items table
         async function fetchData() {
             try {
                 // Show loading message
@@ -138,20 +128,10 @@
                 
                 const itemResult = await docClient.scan(itemParams).promise();
                 
-                // Fetch addons
-                const addonParams = {
-                    TableName: ADDON_TABLE
-                };
-                
-                const addonResult = await docClient.scan(addonParams).promise();
-                
                 if (!itemResult.Items || itemResult.Items.length === 0) {
                     showError("No items found. The fog seems to be too thick today.");
                     return;
                 }
-                
-                // Store all addons
-                allAddons = addonResult.Items || [];
                 
                 // Sort items by ItemType and ItemRarity
                 allItems = itemResult.Items;
@@ -356,10 +336,6 @@
                             data-rarity="${escapeAttribute(item.ItemRarity || '')}">
                             View Details
                         </button>
-                        <button class="popup-button" onclick="openAddonsPopup(this)"
-                            data-type="${escapeAttribute(item.ItemType || '')}">
-                            View Addons
-                        </button>
                     </div>
                 </div>
             `;
@@ -393,66 +369,6 @@
             document.getElementById('itemPopup').classList.add('active');
             document.getElementById('itemPopupContent').innerHTML = content;
             document.getElementById('itemPopupTitle').textContent = name;
-            document.body.style.overflow = 'hidden';
-        }
-        
-        function openAddonsPopup(buttonElement) {
-            const itemType = buttonElement.getAttribute('data-type');
-            
-            // Filter addons by item type
-            const itemAddons = allAddons.filter(addon => addon.AddonType === itemType);
-            
-            // Sort addons by rarity
-            itemAddons.sort((a, b) => {
-                const rarityOrder = {
-                    'Common': 1,
-                    'Uncommon': 2,
-                    'Rare': 3,
-                    'Very Rare': 4,
-                    'Ultra Rare': 5
-                };
-                const rarityA = rarityOrder[a.AddonRarity] || 0;
-                const rarityB = rarityOrder[b.AddonRarity] || 0;
-                return rarityA - rarityB;
-            });
-            
-            // Generate addons HTML
-            let addonsContent = '<div class="addons-container">';
-            
-            if (itemAddons.length === 0) {
-                addonsContent = `
-                    <div class="no-addons">
-                        <p>No addons found for this item type.</p>
-                    </div>
-                `;
-            } else {
-                itemAddons.forEach(addon => {
-                    const addonImagePath = `${addon.Folder}/${addon.Filename}`;
-                    
-                    addonsContent += `
-                        <div class="addon-card">
-                            <img src="${addonImagePath}" alt="${addon.AddonName}" class="addon-image">
-                            <h3 class="addon-name">${addon.AddonName}</h3>
-                            <div class="item-stats">
-                                <div class="item-stat">
-                                    <span>Rarity:</span> 
-                                    <span class="rarity-text ${addon.AddonRarity.toLowerCase().replace(' ', '-')}">${addon.AddonRarity}</span>
-                                </div>
-                            </div>
-                            <div class="survivor-lore">
-                                ${addon.AddonDescription}
-                                ${addon.AddonQuote ? `<div class="perk-quote">${addon.AddonQuote}</div>` : ''}
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                addonsContent += '</div>';
-            }
-            
-            document.getElementById('addonsPopup').classList.add('active');
-            document.getElementById('addonsPopupContent').innerHTML = addonsContent;
-            document.getElementById('addonsPopupTitle').textContent = `${itemType} Addons`;
             document.body.style.overflow = 'hidden';
         }
         
@@ -568,16 +484,7 @@
             fetchData();
             setupEventListeners();
         });
-        
-       document.getElementById('addonsPopup').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    this.classList.remove('active');
-                    document.body.style.overflow = 'auto';
-                }
-            });
-        
-        </script>
-    
+    </script>
     <a href="#" class="back-to-top">↑</a>
 </body>
 </html>
