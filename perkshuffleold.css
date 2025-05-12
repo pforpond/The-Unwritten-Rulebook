@@ -295,7 +295,7 @@
             }
             
             .role-selector {
-                flex-direction: row !important;
+                flex-direction: column;
                 gap: 1rem;
             }
             
