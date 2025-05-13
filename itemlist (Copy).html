@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survivor Items | Almanac | Dead by Daylight</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="landing.css">
+    <link rel="stylesheet" href="playerlist.css">
+    <link rel="stylesheet" href="itemlist.css">
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1048.0.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="nav">
+                <a href="rulebook-landing.html" class="logo"><img src="logo.png" alt="The Unwritten Rulebook"></a>
+                <div class="nav-buttons">
+                    <a href="unwrittenrulebook.html" class="nav-button" data-title="Unwritten Rules">
+                        <img src="rulebook.png" alt="Unwritten Rules">
+                    </a>
+                    <a href="perkshuffle.html" class="nav-button" data-title="Perk Shuffle">
+                        <img src="perkshuffle.png" alt="Perk Shuffle">
+                    </a>
+                    <a href="codes.html" class="nav-button" data-title="Codes">
+                        <img src="codes.png" alt="Codes">
+                    </a>
+                    <a href="almanac-landing.html" class="nav-button" data-title="Almanac">
+                        <img src="almanac.png" alt="Almanac">
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+    
+    <section class="container">
+        <div class="hero-buttons">
+            <a href="killerlist.html" class="hero-button" data-title="Killer Almanac">
+                <img src="killer.png" alt="Killer Almanac">
+            </a>
+            <a href="survivorlist.html" class="hero-button" data-title="Survivor Almanac">
+                <img src="survivor.png" alt="Survivor Almanac">
+            </a>
+            <a href="perklist.html" class="hero-button" data-title="Perk Almanac">
+                <img src="perkalmanac.png" alt="Perk Almanac">
+            </a>
+            <a href="itemlist.html" class="hero-button" data-title="Item Almanac">
+                <img src="survivoritems.png" alt="Item Almanac">
+            </a>
+        </div>
+        <h1 class="page-title">Almanac - Survivor Items</h1>
+        
+        <div class="filter-container">
+            <div class="filter-buttons">
+                <button class="filter-button active" data-filter="all">All Items</button>
+                <button class="filter-button" data-filter="First Aid">Med Kits</button>
+                <button class="filter-button" data-filter="Toolbox">Toolboxes</button>
+                <button class="filter-button" data-filter="Map">Maps</button>
+                <button class="filter-button" data-filter="Key">Keys</button>
+            </div>
+        </div>
+        
+        <div class="search-container">
+            <input type="text" class="search-input" id="searchInput" placeholder="Search items...">
+            <button class="search-button" id="searchButton">Search</button>
+        </div>
+        
+        <div id="item-container">
+            <div class="loading">Searching for items in the fog...</div>
+        </div>
+    </section>
+    
+    <!-- Item Details Popup -->
+    <div class="popup-overlay" id="itemPopup">
+        <div class="popup-content">
+            <button class="popup-close" onclick="closePopup('itemPopup')">&times;</button>
+            <h2 class="popup-title" id="itemPopupTitle">Item Details</h2>
+            <div id="itemPopupContent"></div>
+        </div>
+    </div>
+    
+    <div class="popup-overlay" id="addonsPopup">
+        <div class="popup-content">
+            <button class="popup-close" onclick="closePopup('addonsPopup')">&times;</button>
+            <h2 class="popup-title" id="addonsPopupTitle">Item Addons</h2>
+            <div id="addonsPopupContent"></div>
+        </div>
+    </div>
+    
+    <footer class="footer">
+        <div class="container">
+            <p>The Unwritten Rulebook is a fan-made project and is not affiliated with Behaviour Interactive or Dead by Daylight.</p>
+        </div>
+    </footer>
+
+    <script>
+        // AWS Configuration
+        const REGION = 'eu-west-2';
+        const IDENTITY_POOL_ID = 'eu-west-2:f8f16cb5-193e-428d-a909-abd6b44bf275';
+        const ITEM_TABLE = 'GameSurvivorItems';
+        const ADDON_TABLE = 'SurvivorAddons';
+        
+        // Initialize AWS SDK
+        AWS.config.region = REGION;
+        AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+            IdentityPoolId: IDENTITY_POOL_ID
+        });
+        
+        // Initialize DynamoDB
+        const docClient = new AWS.DynamoDB.DocumentClient();
+        
+        // Data storage
+        let allItems = [];
+        let filteredItems = [];
+        let allAddons = [];
+        let searchQuery = '';
+        let currentFilter = 'all';
+        
+        // Rarity order mapping (for sorting)
+        const rarityOrder = {
+            'Common': 1,
+            'Uncommon': 2,
+            'Rare': 3,
+            'Very Rare': 4,
+            'Ultra Rare': 5
+        };
+        
+        // Fetch data from the items + addons table
+        async function fetchData() {
+            try {
+                // Show loading message
+                document.getElementById('item-container').innerHTML = '<div class="loading">Searching for items in the fog...</div>';
+                
+                // Fetch items
+                const itemParams = {
+                    TableName: ITEM_TABLE
+                };
+                
+                const itemResult = await docClient.scan(itemParams).promise();
+                
+                // Fetch addons
+                const addonParams = {
+                    TableName: ADDON_TABLE
+                };
+                
+                const addonResult = await docClient.scan(addonParams).promise();
+                
+                if (!itemResult.Items || itemResult.Items.length === 0) {
+                    showError("No items found. The fog seems to be too thick today.");
+                    return;
+                }
+                
+                // Store all addons
+                allAddons = addonResult.Items || [];
+                
+                // Sort items by ItemType and ItemRarity
+                allItems = itemResult.Items;
+                
+                // Initialize filtered items
+                filteredItems = [...allItems];
+                
+                // Display data
+                displayItems();
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                showError("Failed to fetch items from the database. Please try again later.");
+            }
+        }
+        
+        // Apply search and filter
+        function applySearchAndFilter() {
+            // First, filter by ItemType if not "all"
+            if (currentFilter === 'all') {
+                filteredItems = [...allItems];
+            } else {
+                filteredItems = allItems.filter(item => item.ItemType === currentFilter);
+            }
+            
+            // Then apply search query if any
+            if (searchQuery) {
+                const query = searchQuery.toLowerCase();
+                
+                filteredItems = filteredItems.filter(item => {
+                    // Search by name
+                    if (item.ItemName && item.ItemName.toLowerCase().includes(query)) {
+                        return true;
+                    }
+                    
+                    // Search by description
+                    if (item.ItemDescription && item.ItemDescription.toLowerCase().includes(query)) {
+                        return true;
+                    }
+                    
+                    // Search by quote
+                    if (item.ItemQuote && item.ItemQuote.toLowerCase().includes(query)) {
+                        return true;
+                    }
+                    
+                    // Search by type
+                    if (item.ItemType && item.ItemType.toLowerCase().includes(query)) {
+                        return true;
+                    }
+                    
+                    // Search by rarity
+                    if (item.ItemRarity && item.ItemRarity.toLowerCase().includes(query)) {
+                        return true;
+                    }
+                    
+                    return false;
+                });
+            }
+            
+            displayItems();
+        }
+        
+        // Display items on the page
+        function displayItems() {
+            const container = document.getElementById('item-container');
+            container.innerHTML = ''; // Clear loading message
+            
+            if (filteredItems.length === 0) {
+                container.innerHTML = '<div class="no-results">No items found matching your search criteria.</div>';
+                return;
+            }
+            
+            // Group items by type
+            const itemsByType = {};
+            
+            filteredItems.forEach(item => {
+                const type = item.ItemType || 'Unknown';
+                if (!itemsByType[type]) {
+                    itemsByType[type] = [];
+                }
+                itemsByType[type].push(item);
+            });
+            
+            // Sort each group by rarity
+            Object.keys(itemsByType).forEach(type => {
+                itemsByType[type].sort((a, b) => {
+                    const rarityA = rarityOrder[a.ItemRarity] || 0;
+                    const rarityB = rarityOrder[b.ItemRarity] || 0;
+                    return rarityA - rarityB;
+                });
+            });
+            
+            // Order of item types to display
+            const typeOrder = ['First Aid', 'Toolbox', 'Map', 'Key'];
+            
+            // Display items by type
+            typeOrder.forEach(type => {
+                if (itemsByType[type] && itemsByType[type].length > 0) {
+                    // Create type section
+                    const typeSection = document.createElement('div');
+                    typeSection.className = 'item-type-section';
+                    
+                    // Create type header
+                    const typeHeader = document.createElement('h2');
+                    typeHeader.className = 'item-type-header';
+                    typeHeader.textContent = getDisplayName(type);
+                    typeSection.appendChild(typeHeader);
+                    
+                    // Create item list for this type
+                    const itemList = document.createElement('div');
+                    itemList.className = 'survivor-list';
+                    
+                    // Add items to this type's list
+                    itemsByType[type].forEach(item => {
+                        const card = createItemCard(item);
+                        itemList.appendChild(card);
+                    });
+                    
+                    typeSection.appendChild(itemList);
+                    container.appendChild(typeSection);
+                }
+            });
+            
+            // Display any items with undefined or unknown types
+            const unknownTypes = Object.keys(itemsByType).filter(type => !typeOrder.includes(type));
+            
+            unknownTypes.forEach(type => {
+                if (itemsByType[type] && itemsByType[type].length > 0) {
+                    // Create type section
+                    const typeSection = document.createElement('div');
+                    typeSection.className = 'item-type-section';
+                    
+                    // Create type header
+                    const typeHeader = document.createElement('h2');
+                    typeHeader.className = 'item-type-header';
+                    typeHeader.textContent = getDisplayName(type);
+                    typeSection.appendChild(typeHeader);
+                    
+                    // Create item list for this type
+                    const itemList = document.createElement('div');
+                    itemList.className = 'survivor-list';
+                    
+                    // Add items to this type's list
+                    itemsByType[type].forEach(item => {
+                        const card = createItemCard(item);
+                        itemList.appendChild(card);
+                    });
+                    
+                    typeSection.appendChild(itemList);
+                    container.appendChild(typeSection);
+                }
+            });
+        }
+        
+        // Get display name for item type
+        function getDisplayName(type) {
+            switch(type) {
+                case 'First Aid': return 'Med Kits';
+                case 'Toolbox': return 'Toolboxes';
+                case 'Map': return 'Maps';
+                case 'Key': return 'Keys';
+                case 'Unknown': return 'Other Items';
+                default: return type;
+            }
+        }
+        
+        // Create an item card element
+        function createItemCard(item) {
+            const card = document.createElement('div');
+            card.className = 'survivor-card';
+            
+            const itemImagePath = `${item.Folder}/${item.Filename}`;
+            
+            // Add rarity class to card
+            if (item.ItemRarity) {
+                card.classList.add(`rarity-${item.ItemRarity.toLowerCase().replace(' ', '-')}`);
+            }
+            
+            // Create badges HTML
+            let badgesHTML = '<div class="survivor-badges">';
+            
+            if (item.ItemRarity) {
+                badgesHTML += `<span class="survivor-badge rarity-badge ${item.ItemRarity.toLowerCase().replace(' ', '-')}">${item.ItemRarity}</span>`;
+            }
+            
+            badgesHTML += '</div>';
+            
+            // Store item data as JSON strings in data attributes
+            card.innerHTML = `
+                <div class="survivor-image-container">
+                    <img src="${itemImagePath}" alt="${item.ItemName}" class="survivor-image">
+                </div>
+                <div class="survivor-info">
+                    <h2 class="survivor-name">${item.ItemName}</h2>
+                    ${badgesHTML}
+                    <div class="popup-buttons">
+                        <button class="popup-button" onclick="openItemPopup(this)" 
+                            data-name="${escapeAttribute(item.ItemName)}" 
+                            data-image="${escapeAttribute(itemImagePath)}" 
+                            data-description="${escapeAttribute(item.ItemDescription || '')}" 
+                            data-quote="${escapeAttribute(item.ItemQuote || '')}"
+                            data-type="${escapeAttribute(item.ItemType || '')}"
+                            data-rarity="${escapeAttribute(item.ItemRarity || '')}">
+                            View Details
+                        </button>
+                        <button class="popup-button" onclick="openAddonsPopup(this)"
+                            data-type="${escapeAttribute(item.ItemType || '')}">
+                            View Addons
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        // Open item details popup - now uses data attributes to avoid string parsing issues
+        function openItemPopup(buttonElement) {
+            const name = buttonElement.getAttribute('data-name');
+            const imagePath = buttonElement.getAttribute('data-image');
+            const description = buttonElement.getAttribute('data-description');
+            const quote = buttonElement.getAttribute('data-quote');
+            const type = buttonElement.getAttribute('data-type');
+            const rarity = buttonElement.getAttribute('data-rarity');
+            
+            const content = `
+                <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+                    <img src="${imagePath}" alt="${name}" style="max-width: 150px; max-height: 150px; margin-bottom: 20px; border: 2px solid #700f0f; border-radius: 5px;">
+                </div>
+                <div class="item-stats">
+                    ${type ? `<div class="item-stat"><span>Type:</span> ${type}</div>` : ''}
+                    ${rarity ? `<div class="item-stat"><span>Rarity:</span> <span class="rarity-text ${rarity.toLowerCase().replace(' ', '-')}">${rarity}</span></div>` : ''}
+                </div>
+                <div class="survivor-lore">
+                    ${description}
+                    ${quote ? `<div class="perk-quote">${quote}</div>` : ''}
+                </div>
+            `;
+            
+            document.getElementById('itemPopup').classList.add('active');
+            document.getElementById('itemPopupContent').innerHTML = content;
+            document.getElementById('itemPopupTitle').textContent = name;
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Replace the openAddonsPopup function with this improved version:
+function openAddonsPopup(buttonElement) {
+    const itemType = buttonElement.getAttribute('data-type');
+    
+    // Filter addons by item type
+    const itemAddons = allAddons.filter(addon => addon.AddonType === itemType);
+    
+    // Sort addons by rarity
+    itemAddons.sort((a, b) => {
+        const rarityOrder = {
+            'Common': 1,
+            'Uncommon': 2,
+            'Rare': 3,
+            'Very Rare': 4,
+            'Ultra Rare': 5
+        };
+        const rarityA = rarityOrder[a.AddonRarity] || 0;
+        const rarityB = rarityOrder[b.AddonRarity] || 0;
+        return rarityA - rarityB;
+    });
+    
+    // Generate addons HTML
+    let addonsContent = '<div class="addons-container">';
+    
+    if (itemAddons.length === 0) {
+        addonsContent = `
+            <div class="no-addons">
+                <p>No addons found for this item type.</p>
+            </div>
+        `;
+    } else {
+        itemAddons.forEach(addon => {
+            const addonImagePath = `${addon.Folder}/${addon.Filename}`;
+            const rarityClass = addon.AddonRarity.toLowerCase().replace(' ', '-');
+            
+            addonsContent += `
+                <div class="addon-card">
+                    <div class="addon-card-header">
+                        <img src="${addonImagePath}" alt="${addon.AddonName}" class="addon-image">
+                        <div class="addon-title">
+                            <h3 class="addon-name">${addon.AddonName}</h3>
+                            <div class="item-stat">
+                                <span>Rarity:</span> 
+                                <span class="rarity-text ${rarityClass}">${addon.AddonRarity}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="survivor-lore">
+                        ${addon.AddonDescription}
+                        ${addon.AddonQuote ? `<div class="perk-quote">${addon.AddonQuote}</div>` : ''}
+                    </div>
+                </div>
+            `;
+        });
+    }
+    
+    addonsContent += '</div>';
+    
+    document.getElementById('addonsPopup').classList.add('active');
+    document.getElementById('addonsPopupContent').innerHTML = addonsContent;
+    document.getElementById('addonsPopupTitle').textContent = `${itemType} Addons`;
+    document.body.style.overflow = 'hidden';
+}
+        
+        // Close popup
+        function closePopup(popupId) {
+            document.getElementById(popupId).classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Show error message
+        function showError(message) {
+            const container = document.getElementById('item-container');
+            container.innerHTML = `
+                <div class="error-message">
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+        
+        // Escape HTML for security
+        function escapeHtml(html) {
+            const div = document.createElement('div');
+            div.textContent = html;
+            return div.innerHTML;
+        }
+        
+        // Escape attribute values for HTML attributes
+        function escapeAttribute(value) {
+            if (!value) return '';
+            return value
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Search button
+            document.getElementById('searchButton').addEventListener('click', function() {
+                searchQuery = document.getElementById('searchInput').value.trim();
+                applySearchAndFilter();
+            });
+            
+            // Search input (on Enter key)
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchQuery = this.value.trim();
+                    applySearchAndFilter();
+                }
+            });
+            
+            // Filter buttons
+            document.querySelectorAll('.filter-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    // Update active button styling
+                    document.querySelectorAll('.filter-button').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    // Apply filter
+                    currentFilter = this.getAttribute('data-filter');
+                    applySearchAndFilter();
+                });
+            });
+            
+            // Close popup when clicking outside content
+            document.querySelectorAll('.popup-overlay').forEach(overlay => {
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('active');
+                        document.body.style.overflow = 'auto';
+                    }
+                });
+            });
+            
+            // Close popup with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.popup-overlay.active').forEach(popup => {
+                        popup.classList.remove('active');
+                        document.body.style.overflow = 'auto';
+                    });
+                }
+            });
+            
+            // Back to top button functionality
+            const backToTopButton = document.querySelector('.back-to-top');
+            
+            // Show/hide back to top button based on scroll position
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    backToTopButton.style.display = 'block';
+                } else {
+                    backToTopButton.style.display = 'none';
+                }
+            });
+            
+            // Smooth scroll to top when button is clicked
+            backToTopButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        }
+        
+        // Wait for the DOM to be fully loaded before initializing
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchData();
+            setupEventListeners();
+        });
+        
+       document.getElementById('addonsPopup').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        
+        </script>
+    
+    <a href="#" class="back-to-top">↑</a>
+</body>
+</html>
