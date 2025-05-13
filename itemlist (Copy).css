@@ -158,109 +158,38 @@
     }
 }
 
-/* Updated Addons Container */
 .addons-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
-    margin-top: 1.5rem;
-    max-width: 100%;
-}
-
-/* Updated Addon Card */
-.addon-card {
-    background-color: rgba(20, 20, 20, 0.8);
-    border: 1px solid #700f0f;
-    border-radius: 5px;
-    padding: 1.25rem;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    transition: all 0.3s ease;
-}
-
-.addon-card:hover {
-    background-color: rgba(112, 15, 15, 0.3);
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(112, 15, 15, 0.3);
-}
-
-/* Modified Addon Image */
-.addon-card-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1rem;
-    gap: 1rem;
-}
-
-.addon-image {
-    width: 64px;
-    height: 64px;
-    object-fit: contain;
-    border: 2px solid #700f0f;
-    border-radius: 5px;
-    background-color: rgba(20, 20, 20, 0.5);
-    padding: 0.25rem;
-}
-
-.addon-title {
-    flex: 1;
-}
-
-.addon-name {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.25rem;
-    color: #fff;
-}
-
-/* Updated Popup Content */
-.popup-content {
-    max-width: 90%;
-    width: 900px;
-    max-height: 80vh;
-    overflow-y: auto;
-}
-
-/* Make the popup scrollable */
-#addonsPopupContent {
-    max-height: 60vh;
-    overflow-y: auto;
-    padding-right: 0.5rem;
-    /* For Firefox */
-    scrollbar-width: thin;
-    scrollbar-color: #700f0f rgba(20, 20, 20, 0.5);
-}
-
-/* Scrollbar styling for Webkit browsers */
-#addonsPopupContent::-webkit-scrollbar {
-    width: 8px;
-}
-
-#addonsPopupContent::-webkit-scrollbar-track {
-    background: rgba(20, 20, 20, 0.5);
-    border-radius: 4px;
-}
-
-#addonsPopupContent::-webkit-scrollbar-thumb {
-    background-color: #700f0f;
-    border-radius: 4px;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-    .addons-container {
-        grid-template-columns: 1fr;
-    }
-    
-    .popup-content {
-        width: 95%;
-    }
-}
-
-/* Ensure no-addons message is properly centered */
-.no-addons {
-    grid-column: 1 / -1;
-    text-align: center;
-    color: #d8d8d8;
-    margin-top: 1rem;
-}
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .addon-card {
+            background-color: rgba(20, 20, 20, 0.8);
+            border: 1px solid #700f0f;
+            border-radius: 5px;
+            padding: 1rem;
+            width: 250px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .addon-card:hover {
+            background-color: rgba(112, 15, 15, 0.3);
+        }
+        
+        .addon-image {
+            max-width: 100px;
+            max-height: 100px;
+            margin-bottom: 0.8rem;
+            border: 2px solid #700f0f;
+            border-radius: 5px;
+        }
+        
+        .no-addons {
+            text-align: center;
+            color: #d8d8d8;
+            margin-top: 1rem;
+        }
