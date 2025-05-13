@@ -396,65 +396,69 @@
             document.body.style.overflow = 'hidden';
         }
         
-        function openAddonsPopup(buttonElement) {
-            const itemType = buttonElement.getAttribute('data-type');
+        // Replace the openAddonsPopup function with this improved version:
+function openAddonsPopup(buttonElement) {
+    const itemType = buttonElement.getAttribute('data-type');
+    
+    // Filter addons by item type
+    const itemAddons = allAddons.filter(addon => addon.AddonType === itemType);
+    
+    // Sort addons by rarity
+    itemAddons.sort((a, b) => {
+        const rarityOrder = {
+            'Common': 1,
+            'Uncommon': 2,
+            'Rare': 3,
+            'Very Rare': 4,
+            'Ultra Rare': 5
+        };
+        const rarityA = rarityOrder[a.AddonRarity] || 0;
+        const rarityB = rarityOrder[b.AddonRarity] || 0;
+        return rarityA - rarityB;
+    });
+    
+    // Generate addons HTML
+    let addonsContent = '<div class="addons-container">';
+    
+    if (itemAddons.length === 0) {
+        addonsContent = `
+            <div class="no-addons">
+                <p>No addons found for this item type.</p>
+            </div>
+        `;
+    } else {
+        itemAddons.forEach(addon => {
+            const addonImagePath = `${addon.Folder}/${addon.Filename}`;
+            const rarityClass = addon.AddonRarity.toLowerCase().replace(' ', '-');
             
-            // Filter addons by item type
-            const itemAddons = allAddons.filter(addon => addon.AddonType === itemType);
-            
-            // Sort addons by rarity
-            itemAddons.sort((a, b) => {
-                const rarityOrder = {
-                    'Common': 1,
-                    'Uncommon': 2,
-                    'Rare': 3,
-                    'Very Rare': 4,
-                    'Ultra Rare': 5
-                };
-                const rarityA = rarityOrder[a.AddonRarity] || 0;
-                const rarityB = rarityOrder[b.AddonRarity] || 0;
-                return rarityA - rarityB;
-            });
-            
-            // Generate addons HTML
-            let addonsContent = '<div class="addons-container">';
-            
-            if (itemAddons.length === 0) {
-                addonsContent = `
-                    <div class="no-addons">
-                        <p>No addons found for this item type.</p>
-                    </div>
-                `;
-            } else {
-                itemAddons.forEach(addon => {
-                    const addonImagePath = `${addon.Folder}/${addon.Filename}`;
-                    
-                    addonsContent += `
-                        <div class="addon-card">
-                            <img src="${addonImagePath}" alt="${addon.AddonName}" class="addon-image">
+            addonsContent += `
+                <div class="addon-card">
+                    <div class="addon-card-header">
+                        <img src="${addonImagePath}" alt="${addon.AddonName}" class="addon-image">
+                        <div class="addon-title">
                             <h3 class="addon-name">${addon.AddonName}</h3>
-                            <div class="item-stats">
-                                <div class="item-stat">
-                                    <span>Rarity:</span> 
-                                    <span class="rarity-text ${addon.AddonRarity.toLowerCase().replace(' ', '-')}">${addon.AddonRarity}</span>
-                                </div>
-                            </div>
-                            <div class="survivor-lore">
-                                ${addon.AddonDescription}
-                                ${addon.AddonQuote ? `<div class="perk-quote">${addon.AddonQuote}</div>` : ''}
+                            <div class="item-stat">
+                                <span>Rarity:</span> 
+                                <span class="rarity-text ${rarityClass}">${addon.AddonRarity}</span>
                             </div>
                         </div>
-                    `;
-                });
-                
-                addonsContent += '</div>';
-            }
-            
-            document.getElementById('addonsPopup').classList.add('active');
-            document.getElementById('addonsPopupContent').innerHTML = addonsContent;
-            document.getElementById('addonsPopupTitle').textContent = `${itemType} Addons`;
-            document.body.style.overflow = 'hidden';
-        }
+                    </div>
+                    <div class="survivor-lore">
+                        ${addon.AddonDescription}
+                        ${addon.AddonQuote ? `<div class="perk-quote">${addon.AddonQuote}</div>` : ''}
+                    </div>
+                </div>
+            `;
+        });
+    }
+    
+    addonsContent += '</div>';
+    
+    document.getElementById('addonsPopup').classList.add('active');
+    document.getElementById('addonsPopupContent').innerHTML = addonsContent;
+    document.getElementById('addonsPopupTitle').textContent = `${itemType} Addons`;
+    document.body.style.overflow = 'hidden';
+}
         
         // Close popup
         function closePopup(popupId) {
