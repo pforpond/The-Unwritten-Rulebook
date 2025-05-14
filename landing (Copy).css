@@ -326,36 +326,3 @@
 }
 
 * { -webkit-tap-highlight-color: rgba(0, 0, 0, 0); }
-
-        /* Styles for the Play Store link */
-        .play-store-link {
-            margin-left: 1.5rem;
-            transition: transform 0.3s;
-            position: relative;
-        }
-        
-        .play-store-link:hover {
-            transform: scale(1.1);
-        }
-        
-        .play-store-link:hover::after {
-            content: attr(data-title);
-            position: absolute;
-            bottom: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            padding: 5px 10px;
-            border-radius: 3px;
-            font-size: 0.8rem;
-            white-space: nowrap;
-            border: 1px solid #700f0f;
-        }
-        
-        .play-store-link img {
-            height: 3rem;
-            width: auto;
-            border-radius: 5px;
-            border: 2px solid #700f0f;
-        }
