@@ -1,0 +1,69 @@
+/* Additional styles for offering-specific elements */
+        .offering-type-filter {
+            margin: 1rem 0;
+            text-align: center;
+        }
+        
+        .offering-type-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        
+        .offering-type-button {
+            background-color: rgba(20, 20, 20, 0.8);
+            color: #d8d8d8;
+            border: 1px solid #700f0f;
+            padding: 0.6rem 1.2rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .offering-type-button:hover {
+            background-color: rgba(112, 15, 15, 0.3);
+        }
+        
+        .offering-type-button.active {
+            background-color: #700f0f;
+            color: #fff;
+        }
+        
+        .offering-stats {
+            margin-bottom: 1.5rem;
+            background-color: rgba(112, 15, 15, 0.2);
+            border-radius: 5px;
+            padding: 0.8rem;
+            border: 1px solid rgba(112, 15, 15, 0.4);
+        }
+        
+        .offering-stat {
+            margin-bottom: 0.5rem;
+            color: #d8d8d8;
+            font-size: 0.95rem;
+        }
+        
+        .offering-stat:last-child {
+            margin-bottom: 0;
+        }
+        
+        .offering-stat span {
+            font-weight: bold;
+            color: #fff;
+            margin-right: 0.3rem;
+        }
+        
+        @media (max-width: 768px) {
+            .offering-type-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .offering-type-button {
+                width: 80%;
+                text-align: center;
+            }
+        }

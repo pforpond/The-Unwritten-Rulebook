@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offerings | Almanac | Dead by Daylight</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="landing.css">
+    <link rel="stylesheet" href="playerlist.css">
+    <link rel="stylesheet" href="itemlist.css">
+    <link rel="stylesheet" href="offeringlist.css">
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1048.0.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="nav">
+                <a href="rulebook-landing.html" class="logo"><img src="logo.png" alt="The Unwritten Rulebook"></a>
+                <div class="nav-buttons">
+                    <a href="unwrittenrulebook.html" class="nav-button" data-title="Unwritten Rules">
+                        <img src="rulebook.png" alt="Unwritten Rules">
+                    </a>
+                    <a href="perkshuffle.html" class="nav-button" data-title="Perk Shuffle">
+                        <img src="perkshuffle.png" alt="Perk Shuffle">
+                    </a>
+                    <a href="codes.html" class="nav-button" data-title="Codes">
+                        <img src="codes.png" alt="Codes">
+                    </a>
+                    <a href="almanac-landing.html" class="nav-button" data-title="Almanac">
+                        <img src="almanac.png" alt="Almanac">
+                    </a>
+                    <a href="https://play.google.com/store/apps/details?id=com.studiopond.unwrittenrulebook" class="nav-button play-store-link" data-title="Get the App!" id="playStoreLink" style="display: none;" target="_blank" rel="noopener">
+                        <img src="download.png" alt="Get the App!">
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+    
+    <section class="container">
+        <div class="hero-buttons">
+            <a href="killerlist.html" class="hero-button" data-title="Killer Almanac">
+                <img src="killer.png" alt="Killer Almanac">
+            </a>
+            <a href="survivorlist.html" class="hero-button" data-title="Survivor Almanac">
+                <img src="survivor.png" alt="Survivor Almanac">
+            </a>
+            <a href="perklist.html" class="hero-button" data-title="Perk Almanac">
+                <img src="perkalmanac.png" alt="Perk Almanac">
+            </a>
+            <a href="itemlist.html" class="hero-button" data-title="Item Almanac">
+                <img src="survivoritems.png" alt="Item Almanac">
+            </a>
+            <a href="offerings.html" class="hero-button" data-title="Offering Almanac">
+                <img src="offerings.png" alt="Offering Almanac">
+            </a>
+        </div>
+        <h1 class="page-title">Almanac - Offerings</h1>
+        
+        <div class="offering-type-filter">
+            <div class="offering-type-buttons">
+                <button class="offering-type-button active" data-type="all">All Offerings</button>
+                <button class="offering-type-button" data-type="Survivor">Survivor</button>
+                <button class="offering-type-button" data-type="Killer">Killer</button>
+            </div>
+        </div>
+        
+        <div class="filter-container">
+            <div class="filter-buttons">
+                <button class="filter-button active" data-filter="all">All Categories</button>
+                <button class="filter-button" data-filter="Bloodpoints">Bloodpoints</button>
+                <button class="filter-button" data-filter="Map Selection">Map Selection</button>
+                <button class="filter-button" data-filter="Map Modification">Map Modification</button>
+                <button class="filter-button" data-filter="Memento Mori">Memento Mori</button>
+                <button class="filter-button" data-filter="Shroud">Shroud</button>
+                <button class="filter-button" data-filter="Ward">Ward</button>
+                <button class="filter-button" data-filter="Luck">Luck</button>
+            </div>
+        </div>
+        
+        <div class="search-container">
+            <input type="text" class="search-input" id="searchInput" placeholder="Search offerings...">
+            <button class="search-button" id="searchButton">Search</button>
+        </div>
+        
+        <div id="offering-container">
+            <div class="loading">Searching for offerings in the fog...</div>
+        </div>
+    </section>
+    
+    <!-- Offering Details Popup -->
+    <div class="popup-overlay" id="offeringPopup">
+        <div class="popup-content">
+            <button class="popup-close" onclick="closePopup('offeringPopup')">&times;</button>
+            <h2 class="popup-title" id="offeringPopupTitle">Offering Details</h2>
+            <div id="offeringPopupContent"></div>
+        </div>
+    </div>
+    
+    <footer class="footer">
+        <div class="container">
+            <p>The Unwritten Rulebook is a fan-made project and is not affiliated with Behaviour Interactive or Dead by Daylight.</p>
+        </div>
+    </footer>
+    
+    <script src="detectapp.js"></script>
+
+    <script>
+        // AWS Configuration
+        const REGION = 'eu-west-2';
+        const IDENTITY_POOL_ID = 'eu-west-2:f8f16cb5-193e-428d-a909-abd6b44bf275';
+        const OFFERING_TABLE = 'GameOfferings';
+        
+        // Initialize AWS SDK
+        AWS.config.region = REGION;
+        AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+            IdentityPoolId: IDENTITY_POOL_ID
+        });
+        
+        // Initialize DynamoDB
+        const docClient = new AWS.DynamoDB.DocumentClient();
+        
+        // Data storage
+        let allOfferings = [];
+        let filteredOfferings = [];
+        let searchQuery = '';
+        let currentFilter = 'all';
+        let currentType = 'all';
+        
+        // Rarity order mapping (for sorting)
+        const rarityOrder = {
+            'Common': 1,
+            'Uncommon': 2,
+            'Rare': 3,
+            'Very Rare': 4,
+            'Ultra Rare': 5
+        };
+        
+        // Category display order
+        const categoryOrder = [
+            'Bloodpoints', 'Altruism', 'Boldness', 'Brutality', 'Deviousness', 
+            'Hunter', 'Objectives', 'Sacrifice', 'Survival', 'Luck', 
+            'Map Modification', 'Memento Mori', 'Map Selection', 'Shroud', 'Ward'
+        ];
+        
+        // Fetch data from the offerings table
+        async function fetchData() {
+            try {
+                // Show loading message
+                document.getElementById('offering-container').innerHTML = '<div class="loading">Searching for offerings in the fog...</div>';
+                
+                const params = {
+                    TableName: OFFERING_TABLE
+                };
+                
+                const result = await docClient.scan(params).promise();
+                
+                if (!result.Items || result.Items.length === 0) {
+                    showError("No offerings found. The Entity seems to have hidden them all.");
+                    return;
+                }
+                
+                // Store all offerings
+                allOfferings = result.Items;
+                
+                // Initialize filtered offerings
+                filteredOfferings = [...allOfferings];
+                
+                // Display data
+                displayOfferings();
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                showError("Failed to fetch offerings from the database. Please try again later.");
+            }
+        }
+        
+        // Apply search, type filter, and category filter
+        function applyFilters() {
+            // Start with all offerings
+            filteredOfferings = [...allOfferings];
+            
+            // Filter by type if not "all"
+            if (currentType !== 'all') {
+                filteredOfferings = filteredOfferings.filter(offering => offering.OfferingType === currentType);
+            }
+            
+            // Filter by category if not "all"
+            if (currentFilter !== 'all') {
+                filteredOfferings = filteredOfferings.filter(offering => offering.OfferingCatagory === currentFilter);
+            }
+            
+            // Apply search query if any
+            if (searchQuery) {
+                const query = searchQuery.toLowerCase();
+                
+                filteredOfferings = filteredOfferings.filter(offering => {
+                    // Search by name
+                    if (offering.OfferingName && offering.OfferingName.toLowerCase().includes(query)) {
+                        return true;
+                    }
+                    
+                    // Search by description
+                    if (offering.OfferingDescription && offering.OfferingDescription.toLowerCase().includes(query)) {
+                        return true;
+                    }
+                    
+                    // Search by quote
+                    if (offering.OfferingQuote && offering.OfferingQuote.toLowerCase().includes(query)) {
+                        return true;
+                    }
+                    
+                    // Search by type
+                    if (offering.OfferingType && offering.OfferingType.toLowerCase().includes(query)) {
+                        return true;
+                    }
+                    
+                    // Search by category
+                    if (offering.OfferingCatagory && offering.OfferingCatagory.toLowerCase().includes(query)) {
+                        return true;
+                    }
+                    
+                    // Search by rarity
+                    if (offering.OfferingRarity && offering.OfferingRarity.toLowerCase().includes(query)) {
+                        return true;
+                    }
+                    
+                    return false;
+                });
+            }
+            
+            displayOfferings();
+        }
+        
+        // Display offerings on the page
+        function displayOfferings() {
+            const container = document.getElementById('offering-container');
+            container.innerHTML = ''; // Clear loading message
+            
+            if (filteredOfferings.length === 0) {
+                container.innerHTML = '<div class="no-results">No offerings found matching your search criteria.</div>';
+                return;
+            }
+            
+            // Group offerings by category
+            const offeringsByCategory = {};
+            
+            filteredOfferings.forEach(offering => {
+                const category = offering.OfferingCatagory || 'Unknown';
+                if (!offeringsByCategory[category]) {
+                    offeringsByCategory[category] = [];
+                }
+                offeringsByCategory[category].push(offering);
+            });
+            
+            // Sort each group by rarity, then by name
+            Object.keys(offeringsByCategory).forEach(category => {
+                offeringsByCategory[category].sort((a, b) => {
+                    const rarityA = rarityOrder[a.OfferingRarity] || 0;
+                    const rarityB = rarityOrder[b.OfferingRarity] || 0;
+                    if (rarityA !== rarityB) {
+                        return rarityA - rarityB;
+                    }
+                    return (a.OfferingName || '').localeCompare(b.OfferingName || '');
+                });
+            });
+            
+            // Display offerings by category in the defined order
+            categoryOrder.forEach(category => {
+                if (offeringsByCategory[category] && offeringsByCategory[category].length > 0) {
+                    // Create category section
+                    const categorySection = document.createElement('div');
+                    categorySection.className = 'item-type-section';
+                    
+                    // Create category header
+                    const categoryHeader = document.createElement('h2');
+                    categoryHeader.className = 'item-type-header';
+                    categoryHeader.textContent = getDisplayName(category);
+                    categorySection.appendChild(categoryHeader);
+                    
+                    // Create offering list for this category
+                    const offeringList = document.createElement('div');
+                    offeringList.className = 'survivor-list';
+                    
+                    // Add offerings to this category's list
+                    offeringsByCategory[category].forEach(offering => {
+                        const card = createOfferingCard(offering);
+                        offeringList.appendChild(card);
+                    });
+                    
+                    categorySection.appendChild(offeringList);
+                    container.appendChild(categorySection);
+                }
+            });
+            
+            // Display any offerings with undefined or unknown categories
+            const unknownCategories = Object.keys(offeringsByCategory).filter(category => !categoryOrder.includes(category));
+            
+            unknownCategories.forEach(category => {
+                if (offeringsByCategory[category] && offeringsByCategory[category].length > 0) {
+                    // Create category section
+                    const categorySection = document.createElement('div');
+                    categorySection.className = 'item-type-section';
+                    
+                    // Create category header
+                    const categoryHeader = document.createElement('h2');
+                    categoryHeader.className = 'item-type-header';
+                    categoryHeader.textContent = getDisplayName(category);
+                    categorySection.appendChild(categoryHeader);
+                    
+                    // Create offering list for this category
+                    const offeringList = document.createElement('div');
+                    offeringList.className = 'survivor-list';
+                    
+                    // Add offerings to this category's list
+                    offeringsByCategory[category].forEach(offering => {
+                        const card = createOfferingCard(offering);
+                        offeringList.appendChild(card);
+                    });
+                    
+                    categorySection.appendChild(offeringList);
+                    container.appendChild(categorySection);
+                }
+            });
+        }
+        
+        // Get display name for category
+        function getDisplayName(category) {
+            switch(category) {
+                case 'Bloodpoints': return 'Bloodpoint Offerings';
+                case 'Map Selection': return 'Map Selection';
+                case 'Map Modification': return 'Map Modification';
+                case 'Memento Mori': return 'Memento Mori';
+                case 'Shroud': return 'Shroud Offerings';
+                case 'Ward': return 'Ward Offerings';
+                case 'Luck': return 'Luck Offerings';
+                case 'Altruism': return 'Altruism Offerings';
+                case 'Boldness': return 'Boldness Offerings';
+                case 'Brutality': return 'Brutality Offerings';
+                case 'Deviousness': return 'Deviousness Offerings';
+                case 'Hunter': return 'Hunter Offerings';
+                case 'Objectives': return 'Objectives Offerings';
+                case 'Sacrifice': return 'Sacrifice Offerings';
+                case 'Survival': return 'Survival Offerings';
+                case 'Unknown': return 'Other Offerings';
+                default: return category;
+            }
+        }
+        
+        // Create an offering card element
+        function createOfferingCard(offering) {
+            const card = document.createElement('div');
+            card.className = 'survivor-card';
+            
+            const offeringImagePath = `${offering.Folder}/${offering.Filename}`;
+            
+            // Add rarity class to card
+            if (offering.OfferingRarity) {
+                card.classList.add(`rarity-${offering.OfferingRarity.toLowerCase().replace(' ', '-')}`);
+            }
+            
+            // Create badges HTML
+            let badgesHTML = '<div class="survivor-badges">';
+            
+            if (offering.OfferingRarity) {
+                badgesHTML += `<span class="survivor-badge rarity-badge ${offering.OfferingRarity.toLowerCase().replace(' ', '-')}">${offering.OfferingRarity}</span>`;
+            }
+            
+            if (offering.OfferingType) {
+                badgesHTML += `<span class="survivor-badge">${offering.OfferingType}</span>`;
+            }
+            
+            badgesHTML += '</div>';
+            
+            // Store offering data as JSON strings in data attributes
+            card.innerHTML = `
+                <div class="survivor-image-container">
+                    <img src="${offeringImagePath}" alt="${offering.OfferingName}" class="survivor-image">
+                </div>
+                <div class="survivor-info">
+                    <h2 class="survivor-name">${offering.OfferingName}</h2>
+                    ${badgesHTML}
+                    <div class="popup-buttons">
+                        <button class="popup-button" onclick="openOfferingPopup(this)" 
+                            data-name="${escapeAttribute(offering.OfferingName)}" 
+                            data-image="${escapeAttribute(offeringImagePath)}" 
+                            data-description="${escapeAttribute(offering.OfferingDescription || '')}" 
+                            data-quote="${escapeAttribute(offering.OfferingQuote || '')}"
+                            data-type="${escapeAttribute(offering.OfferingType || '')}"
+                            data-category="${escapeAttribute(offering.OfferingCatagory || '')}"
+                            data-rarity="${escapeAttribute(offering.OfferingRarity || '')}">
+                            View Details
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        // Open offering details popup
+        function openOfferingPopup(buttonElement) {
+            const name = buttonElement.getAttribute('data-name');
+            const imagePath = buttonElement.getAttribute('data-image');
+            const description = buttonElement.getAttribute('data-description');
+            const quote = buttonElement.getAttribute('data-quote');
+            const type = buttonElement.getAttribute('data-type');
+            const category = buttonElement.getAttribute('data-category');
+            const rarity = buttonElement.getAttribute('data-rarity');
+            
+            const content = `
+                <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+                    <img src="${imagePath}" alt="${name}" style="max-width: 150px; max-height: 150px; margin-bottom: 20px; border: 2px solid #700f0f; border-radius: 5px;">
+                </div>
+                <div class="offering-stats">
+                    ${type ? `<div class="offering-stat"><span>Type:</span> ${type}</div>` : ''}
+                    ${category ? `<div class="offering-stat"><span>Category:</span> ${category}</div>` : ''}
+                    ${rarity ? `<div class="offering-stat"><span>Rarity:</span> <span class="rarity-text ${rarity.toLowerCase().replace(' ', '-')}">${rarity}</span></div>` : ''}
+                </div>
+                <div class="survivor-lore">
+                    ${description}
+                    ${quote ? `<div class="perk-quote">${quote}</div>` : ''}
+                </div>
+            `;
+            
+            document.getElementById('offeringPopup').classList.add('active');
+            document.getElementById('offeringPopupContent').innerHTML = content;
+            document.getElementById('offeringPopupTitle').textContent = name;
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Close popup
+        function closePopup(popupId) {
+            document.getElementById(popupId).classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Show error message
+        function showError(message) {
+            const container = document.getElementById('offering-container');
+            container.innerHTML = `
+                <div class="error-message">
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+        
+        // Escape attribute values for HTML attributes
+        function escapeAttribute(value) {
+            if (!value) return '';
+            return value
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Search button
+            document.getElementById('searchButton').addEventListener('click', function() {
+                searchQuery = document.getElementById('searchInput').value.trim();
+                applyFilters();
+            });
+            
+            // Search input (on Enter key)
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchQuery = this.value.trim();
+                    applyFilters();
+                }
+            });
+            
+            // Type filter buttons
+            document.querySelectorAll('.offering-type-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    // Update active button styling
+                    document.querySelectorAll('.offering-type-button').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    // Apply type filter
+                    currentType = this.getAttribute('data-type');
+                    applyFilters();
+                });
+            });
+            
+            // Category filter buttons
+            document.querySelectorAll('.filter-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    // Update active button styling
+                    document.querySelectorAll('.filter-button').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    // Apply category filter
+                    currentFilter = this.getAttribute('data-filter');
+                    applyFilters();
+                });
+            });
+            
+            // Close popup when clicking outside content
+            document.querySelectorAll('.popup-overlay').forEach(overlay => {
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('active');
+                        document.body.style.overflow = 'auto';
+                    }
+                });
+            });
+            
+            // Close popup with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.popup-overlay.active').forEach(popup => {
+                        popup.classList.remove('active');
+                        document.body.style.overflow = 'auto';
+                    });
+                }
+            });
+            
+            // Back to top button functionality
+            const backToTopButton = document.querySelector('.back-to-top');
+            
+            // Show/hide back to top button based on scroll position
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    backToTopButton.style.display = 'block';
+                } else {
+                    backToTopButton.style.display = 'none';
+                }
+            });
+            
+            // Smooth scroll to top when button is clicked
+            backToTopButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        }
+        
+        // Wait for the DOM to be fully loaded before initializing
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchData();
+            setupEventListeners();
+        });
+        
+    </script>
+    
+    <a href="#" class="back-to-top">↑</a>
+</body>
+</html>
